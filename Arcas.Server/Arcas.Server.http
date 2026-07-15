@@ -1,0 +1,6 @@
+@Arcas.Server_HostAddress = http://localhost:5047
+
+GET {{Arcas.Server_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###

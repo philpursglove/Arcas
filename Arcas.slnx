@@ -1,0 +1,7 @@
+<Solution>
+  <Project Path="arcas.client/arcas.client.esproj">
+    <Build />
+    <Deploy />
+  </Project>
+  <Project Path="Arcas.Server/Arcas.Server.csproj" />
+</Solution>
