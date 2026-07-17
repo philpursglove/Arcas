@@ -1,0 +1,67 @@
+﻿using System.Text.Json.Serialization;
+
+namespace Arcas.Server
+{
+    internal class SetlistArtistSearchResult
+    {
+        [JsonPropertyName("artist")]
+        public List<SetlistArtist> Artists { get; set; }
+    }
+
+    internal class SetlistArtist
+    {
+        [JsonPropertyName("name")]
+        public string Name { get; set; }
+
+        [JsonPropertyName("mbid")]
+        public string Id { get; set; }
+    }
+
+    internal class SetlistSearchResult
+    {
+        [JsonPropertyName("setlist")]
+        public List<Setlist> Setlists { get; set; }
+    }
+
+    internal class Setlist
+    {
+        [JsonPropertyName("id")]
+        public string Id { get; set; }
+
+        [JsonPropertyName("eventDate")]
+        public string EventDate { get; set; }
+
+        [JsonPropertyName("venue")]
+        public Venue Venue { get; set; }
+
+        [JsonPropertyName("uri")]
+        public Uri SetlistUri { get; set; }
+    }
+
+    internal class Venue
+    {
+        [JsonPropertyName("name")]
+        public string Name { get; set; }
+
+        [JsonPropertyName("city")]
+        public City City { get; set; }
+    }
+
+    internal class City
+    {
+        [JsonPropertyName("name")]
+        public string Name { get; set; }
+
+        [JsonPropertyName("country")]
+        public Country Country { get; set; }
+    }
+
+    internal class Country
+    {
+        [JsonPropertyName("name")]
+        public string Name { get; set; }
+
+        [JsonPropertyName("code")]
+        public string Code { get; set; }
+    }
+}

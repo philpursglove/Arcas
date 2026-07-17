@@ -28,15 +28,34 @@ namespace Arcas.Server.Controllers
             {
                 return new BadRequestObjectResult("Search text cannot be empty.");
             }
-            var setlistApiUrl = $"search/artists?artistName={Uri.EscapeDataString(searchText)}";
+            var setlistApiUrl = $"search/artists?artistName={Uri.EscapeDataString(searchText)}&sort=relevance";
             var response = await _httpClient.GetAsync(setlistApiUrl);
             if (!response.IsSuccessStatusCode)
             {
                 return new StatusCodeResult((int)response.StatusCode);
             }
             var content = await response.Content.ReadAsStringAsync();
-            var artistSearchResult = JsonSerializer.Deserialize<ArtistSearchResultDTO>(content);
-            return new OkObjectResult(artistSearchResult);
+            var artistSearchResult = JsonSerializer.Deserialize<SetlistArtistSearchResult>(content);
+
+            if (artistSearchResult.Artists.Any(a => a.Name.ToLowerInvariant() == searchText.ToLowerInvariant()))
+            {
+                // search for setlists using the id
+                var artistId = artistSearchResult.Artists.First(a => a.Name.ToLowerInvariant() == searchText.ToLowerInvariant()).Id;
+
+                var setlistsApiUrl = $"search/setlists?artistMbid={Uri.EscapeDataString(artistId)}";
+                response = await _httpClient.GetAsync(setlistsApiUrl);
+                if (!response.IsSuccessStatusCode)
+                {
+                    return new StatusCodeResult((int)response.StatusCode);
+                }
+                var setlistsContent = await response.Content.ReadAsStringAsync();
+                var setlists = JsonSerializer.Deserialize<SetlistSearchResult>(setlistsContent);
+                return new OkObjectResult(setlists);
+            }
+            else
+            {
+                return new NotFoundObjectResult($"No artist found with the name '{searchText}'.");
+            }
         }
 
         [HttpGet("setlistlookup")]
