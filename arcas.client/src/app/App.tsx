@@ -27,6 +27,11 @@ interface Setlist {
   url: string;
 }
 
+interface Artist {
+    name: string;
+    id: string;
+}
+
 type AppView = "search" | "results" | "setlist" | "creating" | "done";
 
 // ── Mock data ──────────────────────────────────────────────────────────────
@@ -727,7 +732,8 @@ function ApiNoticeBanner() {
 
 export default function App() {
   const [view, setView] = useState<AppView>("search");
-  const [query, setQuery] = useState("");
+    const [query, setQuery] = useState("");
+    const [artists, setArtists] = useState<Artist[]>([]);
   const [results, setResults] = useState<Setlist[]>([]);
   const [selected, setSelected] = useState<Setlist | null>(null);
   const [loading, setLoading] = useState(false);
@@ -736,7 +742,15 @@ export default function App() {
   async function handleSearch() {
     if (!query.trim()) return;
     setLoading(true);
-    await new Promise((r) => setTimeout(r, 900));
+
+      const searchResponse = await fetch('Setlist/artistsearch?searchText=' + encodeURIComponent(query));
+      if (!searchResponse.ok) {
+        setLoading(false);
+        return;
+      }
+      const searchResult = await searchResponse.json();
+      setArtists(searchResult.artists);
+
     setResults(MOCK_SETLISTS);
     setView("results");
     setLoading(false);

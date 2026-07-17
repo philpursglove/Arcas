@@ -8,6 +8,8 @@ builder.Services.AddControllers();
 // Learn more about configuring OpenAPI at https://aka.ms/aspnet/openapi
 builder.Services.AddOpenApi();
 
+builder.Services.AddHttpClient();
+
 builder.Services.Configure<ApiKeys>(builder.Configuration.GetSection("ApiKeys"));
 
 var app = builder.Build();

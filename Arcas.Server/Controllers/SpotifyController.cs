@@ -1,8 +1,9 @@
-﻿using Microsoft.Extensions.Options;
+﻿using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Options;
 
 namespace Arcas.Server.Controllers;
 
-public class SpotifyController
+public class SpotifyController : Controller
 {
     private readonly ApiKeys _apiKeys;
 
