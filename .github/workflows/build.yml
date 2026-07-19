@@ -1,0 +1,46 @@
+name: Build
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+
+    - name: Setup .NET
+      uses: actions/setup-dotnet@v4
+      with:
+        dotnet-version: '10.0.x'
+        dotnet-quality: 'ga'
+
+    - name: Setup Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: '20'
+        cache: 'npm'
+        cache-dependency-path: arcas.client/package-lock.json
+
+    - name: Restore .NET dependencies
+      run: dotnet restore
+
+    - name: Install Node.js dependencies
+      run: npm ci
+      working-directory: ./arcas.client
+
+    - name: Build frontend
+      run: npm run build
+      working-directory: ./arcas.client
+
+    - name: Build .NET solution
+      run: dotnet build --no-restore --configuration Release
+
+    - name: Test .NET solution
+      run: dotnet test --no-build --configuration Release --verbosity normal
