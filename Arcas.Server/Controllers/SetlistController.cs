@@ -58,8 +58,8 @@ namespace Arcas.Server.Controllers
             }
         }
 
-        [HttpGet("setlistlookup")]
-        public async Task<IActionResult> SetlistLookup(string setlistUrl)
+        [HttpGet("getsetlist")]
+        public async Task<IActionResult> GetSetlist(string setlistUrl)
         {
             if (string.IsNullOrWhiteSpace(setlistUrl))
             {
@@ -68,6 +68,7 @@ namespace Arcas.Server.Controllers
 
             var setlistId = setlistUrl.ToLower().Substring(setlistUrl.LastIndexOf('/') + 1).TrimEnd(".html");
 
+            return Ok();
         }
 
 
