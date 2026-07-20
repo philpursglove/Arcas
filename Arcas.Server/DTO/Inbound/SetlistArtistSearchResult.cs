@@ -1,6 +1,6 @@
 ﻿using System.Text.Json.Serialization;
 
-namespace Arcas.Server
+namespace Arcas.Server.DTO.Inbound
 {
     internal class SetlistArtistSearchResult
     {
