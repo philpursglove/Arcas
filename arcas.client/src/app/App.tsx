@@ -299,7 +299,7 @@ function HeroSearch({
       <header className="flex items-center justify-between px-8 py-6 border-b border-border">
         <div className="flex items-center gap-2.5">
           <Disc3 size={22} className="text-primary" />
-          <span className="font-display font-bold text-xl tracking-tight text-foreground">Arcas</span>
+          <span className="font-display font-bold text-xl tracking-tight text-foreground"><a href="/">Arcas</a></span>
         </div>
         <a
           href="https://www.setlist.fm"

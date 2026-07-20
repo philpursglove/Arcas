@@ -34,8 +34,29 @@ namespace Arcas.Server
         [JsonPropertyName("venue")]
         public Venue Venue { get; set; }
 
-        [JsonPropertyName("uri")]
+        [JsonPropertyName("url")]
         public Uri SetlistUri { get; set; }
+
+        [JsonPropertyName("sets")]
+        public Sets Sets { get; set; }
+    }
+
+    internal class Sets
+    {
+        [JsonPropertyName("set")]
+        public List<Set> Setslist { get; set; }
+    }
+
+    internal class Set
+    {
+        [JsonPropertyName("song")]
+        public List<Song> Songs { get; set; }
+    }
+
+    internal class Song
+    {
+        [JsonPropertyName("name")]
+        public string Name { get; set; }
     }
 
     internal class Venue
