@@ -39,6 +39,15 @@ namespace Arcas.Server
 
         [JsonPropertyName("sets")]
         public Sets Sets { get; set; }
+
+        [JsonPropertyName("tour")]
+        public Tour? Tour { get; set; }
+    }
+
+    internal class Tour
+    {
+        [JsonPropertyName("name")]
+        public string Name { get; set; }
     }
 
     internal class Sets
