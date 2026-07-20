@@ -1,4 +1,6 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Arcas.Server.DTO.Inbound;
+using Arcas.Server.DTO.Outbound;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Options;
 using System.Text.Json;
 
@@ -40,16 +42,26 @@ namespace Arcas.Server.Controllers
             if (artistSearchResult.Artists.Any(a => a.Name.ToLowerInvariant() == searchText.ToLowerInvariant()))
             {
                 // search for setlists using the id
-                var artistId = artistSearchResult.Artists.First(a => a.Name.ToLowerInvariant() == searchText.ToLowerInvariant()).Id;
+                var artist = artistSearchResult.Artists.First(a => a.Name.ToLowerInvariant() == searchText.ToLowerInvariant());
 
-                var setlistsApiUrl = $"search/setlists?artistMbid={Uri.EscapeDataString(artistId)}";
+                var setlistsApiUrl = $"search/setlists?artistMbid={Uri.EscapeDataString(artist.Id)}";
                 response = await _httpClient.GetAsync(setlistsApiUrl);
                 if (!response.IsSuccessStatusCode)
                 {
                     return new StatusCodeResult((int)response.StatusCode);
                 }
                 var setlistsContent = await response.Content.ReadAsStringAsync();
-                var setlists = JsonSerializer.Deserialize<SetlistSearchResult>(setlistsContent);
+                var setlistsResult = JsonSerializer.Deserialize<SetlistSearchResult>(setlistsContent);
+
+                var setlists = setlistsResult.Setlists.Select(s => new DTO.Outbound.Setlist()
+                {
+                    Id = s.Id,
+                    Date = DateOnly.FromDateTime(DateTime.Parse(s.EventDate)),
+                    Venue = new DTO.Outbound.Venue() { Name = s.Venue?.Name, City = s.Venue?.City?.Name, Country = s.Venue?.City?.Country?.Name },
+                    Artist = new Artist() { Name = artist.Name, Id = artist.Id },
+                    Tour = s.Tour?.Name
+                }).ToList();
+
                 return new OkObjectResult(setlists);
             }
             else
