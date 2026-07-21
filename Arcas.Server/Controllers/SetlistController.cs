@@ -64,6 +64,9 @@ namespace Arcas.Server.Controllers
                     formattedDate = DateTime.Parse(s.EventDate).ToString("d MMM yyyy")
                 }).ToList();
 
+                setlists = setlists.Where(s => s.eventDate <= DateOnly.FromDateTime(DateTime.Today)
+                                               && s.Songs.Any()).ToList();
+
                 return new OkObjectResult(setlists);
             }
             else
