@@ -12,12 +12,13 @@ interface Song {
 
 interface Setlist {
     id: string;
-    eventDate: string;
+    eventDate: Date;
     artist: { name: string; mbid: string };
-    venue: { name: string; city: { name: string; country: { name: string } } };
+    venue: { name: string; city: string; country: string };
     songs: Song[];
-    tour?: { name: string };
+    tour?: string;
     url: string;
+    formattedDate: string;
 }
 
 interface Artist {
@@ -32,9 +33,10 @@ type AppView = "search" | "results" | "setlist" | "creating" | "done";
 const MOCK_SETLISTS: Setlist[] = [
     {
         id: "6bd15e5b",
-        eventDate: "14-06-2024",
+        eventDate: new Date("2024-06-14"),
+        formattedDate: "14 Jun 2024",
         artist: { name: "Radiohead", mbid: "a74b1b7f-71a5-4011-9441-d0b5e4122711" },
-        venue: { name: "Glastonbury Festival", city: { name: "Pilton", country: { name: "United Kingdom" } } },
+        venue: { name: "Glastonbury Festival", city: "Pilton", country: "United Kingdom" },
         url: "https://setlist.fm",
         songs: [
             { name: "Daydreaming" },
@@ -51,13 +53,14 @@ const MOCK_SETLISTS: Setlist[] = [
             { name: "Idioteque" },
             { name: "Fake Plastic Trees" },
         ],
-        tour: { name: "A Moon Shaped Pool Tour" },
+        tour: "A Moon Shaped Pool Tour" ,
     },
     {
         id: "4bd25f8c",
-        eventDate: "22-07-2023",
+        eventDate: new Date("2023-07-22"),
+        formattedDate: "22 Jul 2023",
         artist: { name: "Radiohead", mbid: "a74b1b7f-71a5-4011-9441-d0b5e4122711" },
-        venue: { name: "Madison Square Garden", city: { name: "New York", country: { name: "United States" } } },
+        venue: { name: "Madison Square Garden", city: "New York", country: "United States" },
         songs: [
             { name: "Burn the Witch" },
             { name: "Myxomatosis" },
@@ -75,9 +78,10 @@ const MOCK_SETLISTS: Setlist[] = [
     },
     {
         id: "3ae96f2d",
-        eventDate: "05-03-2023",
+        eventDate: new Date("2023-03-05"),
+        formattedDate: "5 Mar 2023",
         artist: { name: "Radiohead", mbid: "a74b1b7f-71a5-4011-9441-d0b5e4122711" },
-        venue: { name: "O2 Arena", city: { name: "London", country: { name: "United Kingdom" } } },
+        venue: { name: "O2 Arena", city: "London", country: "United Kingdom" },
         songs:
             [
                 { name: "Ful Stop" },
@@ -105,13 +109,8 @@ function parseSetlistId(url: string): string | null {
     return match ? match[1] : null;
 }
 
-function formatDate(raw: string): string {
-    const [day, month, year] = raw.split("-");
-    return new Date(`${year}-${month}-${day}`).toLocaleDateString("en-US", {
-        year: "numeric",
-        month: "long",
-        day: "numeric",
-    });
+function formatDate(date: Date): string {
+    return date.toDateString();
 }
 
 function allSongs(setlist: Setlist): Song[] {
@@ -144,14 +143,14 @@ function SetlistCard({
             <div className="flex items-start justify-between gap-3">
                 <div className="flex-1 min-w-0">
                     <div className="flex items-center gap-2 mb-1">
-                        <span className="text-xs font-mono text-muted-foreground">{formatDate(setlist.eventDate)}</span>
-                        {setlist.tour && <Pill>{setlist.tour.name}</Pill>}
+                        <span className="text-xs font-mono text-muted-foreground">{setlist.formattedDate}</span>
+                        {setlist.tour && <Pill>{setlist.tour}</Pill>}
                     </div>
                     <h3 className="font-display text-lg font-semibold text-foreground leading-tight">
                         {setlist.venue.name}
                     </h3>
                     <p className="text-sm text-muted-foreground mt-0.5">
-                        {setlist.venue.city.name}, {setlist.venue.city.country.name}
+                        {setlist.venue.city}, {setlist.venue.country}
                     </p>
 
                     <div className="mt-3 flex flex-wrap gap-1.5">
@@ -471,16 +470,16 @@ function SetlistView({
                 <div className="mb-8">
                     <div className="flex items-center gap-2 mb-2">
                         <span className="text-xs font-mono text-muted-foreground">{formatDate(setlist.eventDate)}</span>
-                        {setlist.tour && <Pill>{setlist.tour.name}</Pill>}
+                        {setlist.tour && <Pill>{setlist.tour}</Pill>}
                     </div>
                     <h2 className="font-display font-bold text-4xl text-foreground leading-tight">{setlist.artist.name}</h2>
                     <p className="text-muted-foreground mt-1">
-                        {setlist.venue.name} · {setlist.venue.city.name}, {setlist.venue.city.country.name}
+                        {setlist.venue.name} · {setlist.venue.city}, {setlist.venue.country}
                     </p>
 
                     <div className="flex items-center gap-4 mt-6">
                         <div className="text-center">
-                            <p className="font-display font-bold text-3xl text-primary">{songs.length}</p>
+                            <p className="font-display font-bold text-3xl text-primary">{setlist.songs.length}</p>
                             <p className="text-xs font-mono text-muted-foreground">songs</p>
                         </div>
                         <div className="w-px h-10 bg-border" />
@@ -590,7 +589,7 @@ function DoneView({
     onReset: () => void;
 }) {
     const songs = allSongs(setlist);
-    const playlistName = `${setlist.artist.name} @ ${setlist.venue.name} (${setlist.eventDate.slice(-4)})`;
+    const playlistName = `${setlist.artist.name} @ ${setlist.venue.name} (${setlist.eventDate.getFullYear()})`;
     const visOption = VISIBILITY_OPTIONS.find((o) => o.value === visibility)!;
     const VisIcon = visOption.Icon;
 

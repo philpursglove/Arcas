@@ -56,10 +56,12 @@ namespace Arcas.Server.Controllers
                 var setlists = setlistsResult.Setlists.Select(s => new DTO.Outbound.Setlist()
                 {
                     Id = s.Id,
-                    Date = DateOnly.FromDateTime(DateTime.Parse(s.EventDate)),
+                    eventDate = DateOnly.FromDateTime(DateTime.Parse(s.EventDate)),
                     Venue = new DTO.Outbound.Venue() { Name = s.Venue?.Name, City = s.Venue?.City?.Name, Country = s.Venue?.City?.Country?.Name },
                     Artist = new Artist() { Name = artist.Name, Id = artist.Id },
-                    Tour = s.Tour?.Name
+                    Tour = s.Tour?.Name,
+                    Songs = s.Sets?.Setslist?.SelectMany(set => set.Songs?.Select(song => new DTO.Outbound.Song() { Name = song.Name }) ?? new List<DTO.Outbound.Song>()).ToList() ?? new List<DTO.Outbound.Song>(),
+                    formattedDate = DateTime.Parse(s.EventDate).ToString("d MMM yyyy")
                 }).ToList();
 
                 return new OkObjectResult(setlists);

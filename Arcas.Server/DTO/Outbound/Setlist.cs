@@ -3,7 +3,7 @@
     public class Setlist
     {
         public string Id { get; set; }
-        public DateOnly Date { get; set; }
+        public DateOnly eventDate { get; set; }
 
         public List<Song> Songs { get; set; }
 
@@ -12,6 +12,8 @@
         public string? Tour { get; set; }
 
         public Venue Venue { get; set; }
+
+        public string formattedDate { get; set; }
     }
 
     public class Song
