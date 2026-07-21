@@ -76,17 +76,27 @@ namespace Arcas.Server.Controllers
         }
 
         [HttpGet("getsetlist")]
-        public async Task<IActionResult> GetSetlist(string setlistUrl)
+        public async Task<IActionResult> GetSetlist(string setlistId)
         {
-            if (string.IsNullOrWhiteSpace(setlistUrl))
+            if (string.IsNullOrWhiteSpace(setlistId))
             {
-                return new BadRequestObjectResult("Setlist URL cannot be empty.");
+                return new BadRequestObjectResult("Setlist ID cannot be empty.");
             }
 
-            var setlistId = setlistUrl.ToLower().Substring(setlistUrl.LastIndexOf('/') + 1).TrimEnd(".html");
+            var setlistUrl = $"setlist/{setlistId}";
+            var response = await _httpClient.GetAsync(setlistUrl);
+            if (!response.IsSuccessStatusCode)
+            {
+                return new StatusCodeResult((int)response.StatusCode);
+            }
+            var content = await response.Content.ReadAsStringAsync();
+            var setlist = JsonSerializer.Deserialize<DTO.Inbound.Setlist>(content);
 
-            return Ok();
+
+
+            return Ok(setlist);
         }
+
 
 
     }
