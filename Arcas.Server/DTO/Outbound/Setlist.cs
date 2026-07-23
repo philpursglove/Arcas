@@ -14,6 +14,8 @@
         public Venue Venue { get; set; }
 
         public string formattedDate { get; set; }
+
+        public string url { get; set; }
     }
 
     public class Song

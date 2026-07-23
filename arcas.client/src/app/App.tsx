@@ -53,7 +53,7 @@ const MOCK_SETLISTS: Setlist[] = [
             { name: "Idioteque" },
             { name: "Fake Plastic Trees" },
         ],
-        tour: "A Moon Shaped Pool Tour" ,
+        tour: "A Moon Shaped Pool Tour",
     },
     {
         id: "4bd25f8c",
@@ -96,8 +96,8 @@ const MOCK_SETLISTS: Setlist[] = [
                 { name: "The Bends" },
                 { name: "High and Dry" },
             ],
-            url: "https://setlist.fm",
-        },
+        url: "https://setlist.fm",
+    },
 ];
 
 // ── Helpers ────────────────────────────────────────────────────────────────
@@ -182,24 +182,13 @@ function SetlistCard({
 
 function TrackRow({
     index,
-    song,
-    encoreName,
-    isFirstEncore,
-}: {
-    index: number;
-    song: Song;
-    encoreName?: string;
-    isFirstEncore?: boolean;
-}) {
+    song }:
+    {
+        index: number;
+        song: Song;
+    }) {
     return (
         <>
-            {isFirstEncore && encoreName && (
-                <div className="px-4 py-2 flex items-center gap-3">
-                    <div className="h-px flex-1 bg-border" />
-                    <span className="text-xs font-mono text-accent uppercase tracking-widest">{encoreName}</span>
-                    <div className="h-px flex-1 bg-border" />
-                </div>
-            )}
             <div className="group flex items-center gap-4 px-4 py-3 rounded-lg hover:bg-secondary transition-colors">
                 <span className="w-6 text-right text-xs font-mono text-muted-foreground shrink-0 group-hover:text-primary">
                     {index + 1}
@@ -447,8 +436,7 @@ function SetlistView({
     onCreatePlaylist: (visibility: PlaylistVisibility) => void;
 }) {
     const [visibility, setVisibility] = useState<PlaylistVisibility>("public");
-    const songs = allSongs(setlist);
-    let globalIndex = 0;
+    const songs = setlist.songs;
 
     return (
         <div className="min-h-screen flex flex-col">
@@ -469,7 +457,7 @@ function SetlistView({
                 {/* Setlist meta */}
                 <div className="mb-8">
                     <div className="flex items-center gap-2 mb-2">
-                        <span className="text-xs font-mono text-muted-foreground">{formatDate(setlist.eventDate)}</span>
+                        <span className="text-xs font-mono text-muted-foreground">{setlist.formattedDate}</span>
                         {setlist.tour && <Pill>{setlist.tour}</Pill>}
                     </div>
                     <h2 className="font-display font-bold text-4xl text-foreground leading-tight">{setlist.artist.name}</h2>
@@ -483,10 +471,6 @@ function SetlistView({
                             <p className="text-xs font-mono text-muted-foreground">songs</p>
                         </div>
                         <div className="w-px h-10 bg-border" />
-                        <div className="text-center">
-                            <p className="font-display font-bold text-3xl text-foreground">{setlist.songs.length}</p>
-                            <p className="text-xs font-mono text-muted-foreground">sets</p>
-                        </div>
                     </div>
 
                     {/* Visibility + Create */}
@@ -525,16 +509,22 @@ function SetlistView({
 
                 {/* Track list */}
                 <div className="bg-card border border-border rounded-xl overflow-hidden">
-                    {setlist.songs.map((song, songIdx) => (
-                        <div key={songIdx}>
-                            {songIdx === 0 && (
+                        <div>
                                 <div className="px-4 py-3 border-b border-border flex items-center gap-2">
                                     <ListMusic size={14} className="text-muted-foreground" />
-                                    <span className="text-xs font-mono text-muted-foreground uppercase tracking-wider">Main Set</span>
                                 </div>
-                            )}
-                        </div>
-                    ))}
+                    </div>
+                    <div className="py-2">
+                        {setlist.songs.map((song, idx) => {
+                            return (
+                                <TrackRow
+                                    key={idx}
+                                    index={idx}
+                                    song={song}
+                                />
+                            );
+                        })}
+                    </div>
                 </div>
 
                 <p className="text-center text-xs font-mono text-muted-foreground mt-6">

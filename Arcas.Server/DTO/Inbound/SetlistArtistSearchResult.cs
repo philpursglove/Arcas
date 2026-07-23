@@ -42,6 +42,9 @@ namespace Arcas.Server.DTO.Inbound
 
         [JsonPropertyName("tour")]
         public Tour? Tour { get; set; }
+
+        [JsonPropertyName("artist")]
+        public SetlistArtist Artist { get; set; }
     }
 
     internal class Tour
