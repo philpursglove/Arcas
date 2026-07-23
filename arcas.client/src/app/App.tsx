@@ -687,10 +687,16 @@ export default function App() {
         const id = parseSetlistId(url);
         if (!id) return;
         setLoading(true);
-        await new Promise((r) => setTimeout(r, 800));
-        // In demo mode, match the mock setlist by ID or fall back to the first one
-        const match = MOCK_SETLISTS.find((s) => s.id === id) ?? { ...MOCK_SETLISTS[0], id, url };
-        setSelected(match);
+
+        const pasteResponse = await fetch('Setlist/getsetlist?setlistId=' + encodeURIComponent(id));
+        if (!pasteResponse.ok) {
+            setLoading(false);
+            return;
+        }
+        const pasteResult = await pasteResponse.json();
+
+
+        setSelected(pasteResult);
         setView("setlist");
         setLoading(false);
     }

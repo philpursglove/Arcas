@@ -76,19 +76,6 @@ namespace Arcas.Server.Controllers
             }
         }
 
-        [HttpGet("getsetlistfromurl")]
-        public async Task<IActionResult> GetSetlistFromUrl(string setlistUrl)
-        {
-            if (string.IsNullOrWhiteSpace(setlistUrl))
-            {
-                return new BadRequestObjectResult("Setlist URL cannot be empty.");
-            }
-
-            var setlistId = setlistUrl.ToLower().Substring(setlistUrl.LastIndexOf('-') + 1).TrimEnd(".html").ToString();
-
-            return await GetSetlist(setlistId);
-        }
-
         [HttpGet("getsetlist")]
         public async Task<IActionResult> GetSetlist(string setlistId)
         {
@@ -96,27 +83,21 @@ namespace Arcas.Server.Controllers
             {
                 return new BadRequestObjectResult("Setlist ID cannot be empty.");
             }
-            var setlistApiUrl = $"setlist/{Uri.EscapeDataString(setlistId)}";
-            var response = await _httpClient.GetAsync(setlistApiUrl);
+
+            var setlistUrl = $"setlist/{setlistId}";
+            var response = await _httpClient.GetAsync(setlistUrl);
             if (!response.IsSuccessStatusCode)
             {
                 return new StatusCodeResult((int)response.StatusCode);
             }
             var content = await response.Content.ReadAsStringAsync();
             var setlist = JsonSerializer.Deserialize<DTO.Inbound.Setlist>(content);
-            var artist = new Artist() { Name = setlist.Artist.Name, Id = setlist.Artist.Id };
-            var outboundSetlist = new DTO.Outbound.Setlist()
-            {
-                Id = setlist.Id,
-                eventDate = DateOnly.FromDateTime(DateTime.Parse(setlist.EventDate)),
-                Venue = new DTO.Outbound.Venue() { Name = setlist.Venue?.Name, City = setlist.Venue?.City?.Name, Country = setlist.Venue?.City?.Country?.Name },
-                Artist = artist,
-                Tour = setlist.Tour?.Name,
-                Songs = setlist.Sets?.Setslist?.SelectMany(set => set.Songs?.Select(song => new DTO.Outbound.Song() { Name = song.Name }) ?? new List<DTO.Outbound.Song>()).ToList() ?? new List<DTO.Outbound.Song>(),
-                formattedDate = DateTime.Parse(setlist.EventDate).ToString("d MMM yyyy")
-            };
-            return new OkObjectResult(outboundSetlist);
+
+
+
+            return Ok(setlist);
         }
+
 
 
     }
