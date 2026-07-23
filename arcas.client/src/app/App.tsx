@@ -676,7 +676,6 @@ export default function App() {
             return;
         }
         const searchResult = await searchResponse.json();
-        //setArtists(searchResult.artists);
 
         setResults(searchResult);
         setView("results");

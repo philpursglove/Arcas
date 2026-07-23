@@ -91,9 +91,17 @@ namespace Arcas.Server.Controllers
                 return new StatusCodeResult((int)response.StatusCode);
             }
             var content = await response.Content.ReadAsStringAsync();
-            var setlist = JsonSerializer.Deserialize<DTO.Inbound.Setlist>(content);
+            var setlistResult = JsonSerializer.Deserialize<DTO.Inbound.Setlist>(content);
 
-
+            var setlist = new DTO.Outbound.Setlist();
+            setlist.Id = setlistResult.Id;
+            setlist.eventDate = DateOnly.FromDateTime(DateTime.Parse(setlistResult.EventDate));
+            setlist.Venue = new DTO.Outbound.Venue() { Name = setlistResult.Venue?.Name, City = setlistResult.Venue?.City?.Name, Country = setlistResult.Venue?.City?.Country?.Name };
+            setlist.Artist = new Artist() { Name = setlistResult.Artist?.Name, Id = setlistResult.Artist?.Id };
+            setlist.Tour = setlistResult.Tour?.Name;
+            setlist.Songs = setlistResult.Sets?.Setslist?.SelectMany(set => set.Songs?.Select(song => new DTO.Outbound.Song() { Name = song.Name }) ?? new List<DTO.Outbound.Song>()).Where(s => !string.IsNullOrWhiteSpace(s.Name)).ToList() ?? new List<DTO.Outbound.Song>();
+            setlist.formattedDate = DateTime.Parse(setlistResult.EventDate).ToString("d MMM yyyy");
+            setlist.url = setlistResult.SetlistUri.ToString();
 
             return Ok(setlist);
         }
