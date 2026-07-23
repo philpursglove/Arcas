@@ -1,4 +1,8 @@
 <Solution>
+  <Folder Name="/Solution Items/">
+    <File Path=".github/workflows/build.yml" />
+    <File Path=".github/workflows/main_arcasapp.yml" />
+  </Folder>
   <Project Path="arcas.client/arcas.client.esproj">
     <Build />
     <Deploy />
