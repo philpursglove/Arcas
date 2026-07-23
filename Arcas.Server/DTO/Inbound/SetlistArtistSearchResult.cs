@@ -1,5 +1,4 @@
-﻿using Arcas.Server.DTO.Outbound;
-using System.Text.Json.Serialization;
+﻿using System.Text.Json.Serialization;
 
 namespace Arcas.Server.DTO.Inbound
 {
@@ -72,9 +71,12 @@ namespace Arcas.Server.DTO.Inbound
         public string Name { get; set; }
 
         [JsonPropertyName("cover")]
-        public Artist? CoverArtist { get; set; }
+        public SetlistArtist? CoverArtist { get; set; }
 
         public bool Cover => CoverArtist != null;
+
+        [JsonPropertyName("tape")]
+        public bool Tape { get; set; }
     }
 
     internal class Venue

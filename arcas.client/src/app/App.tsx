@@ -200,7 +200,7 @@ function TrackRow({
                     <p className="text-sm text-foreground truncate">{song.name}</p>
                     {song.cover && (
                         <p className="text-xs text-muted-foreground font-mono">
-                            cover · {song.cover.name} by {song.cover.artist.name}
+                            cover · {song.cover.name} by {song.coverArtist.name}
                         </p>
                     )}
                 </div>
