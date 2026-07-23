@@ -60,7 +60,7 @@ namespace Arcas.Server.Controllers
                     Venue = new DTO.Outbound.Venue() { Name = s.Venue?.Name, City = s.Venue?.City?.Name, Country = s.Venue?.City?.Country?.Name },
                     Artist = new Artist() { Name = artist.Name, Id = artist.Id },
                     Tour = s.Tour?.Name,
-                    Songs = s.Sets?.Setslist?.SelectMany(set => set.Songs?.Select(song => new DTO.Outbound.Song() { Name = song.Name }) ?? new List<DTO.Outbound.Song>()).Where(s => !string.IsNullOrWhiteSpace(s.Name)).ToList() ?? new List<DTO.Outbound.Song>(),
+                    Songs = s.Sets?.Setslist?.SelectMany(set => set.Songs?.Select(song => new DTO.Outbound.Song() { Name = song.Name, Cover = song.Cover, CoverArtist = song.CoverArtist != null ? new DTO.Outbound.Artist() { Name = song.CoverArtist.Name, Id = song.CoverArtist.Id } : null }) ?? new List<DTO.Outbound.Song>()).Where(s => !string.IsNullOrWhiteSpace(s.Name)).ToList() ?? new List<DTO.Outbound.Song>(),
                     formattedDate = DateTime.Parse(s.EventDate).ToString("d MMM yyyy"),
                     url = s.SetlistUri.ToString()
                 }).ToList();

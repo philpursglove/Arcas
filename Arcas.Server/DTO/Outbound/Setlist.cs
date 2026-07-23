@@ -21,6 +21,10 @@
     public class Song
     {
         public string Name { get; set; }
+
+        public bool Cover { get; set; }
+
+        public Artist? CoverArtist { get; set; }
     }
 
     public class Artist
