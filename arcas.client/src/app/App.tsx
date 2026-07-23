@@ -2,6 +2,8 @@ import { useState } from "react";
 import { Search, Music, ListMusic, ChevronRight, Check, Loader2, ExternalLink, Play, Plus, ArrowLeft, Disc3, Link, Globe, Lock, Users } from "lucide-react";
 
 type PlaylistVisibility = "public" | "private" | "collaborative";
+type CoverOption = "exclude" | "by-artist" | "by-original";
+type MedleyOption = "all" | "first" | "last";
 
 // ── Types ──────────────────────────────────────────────────────────────────
 
