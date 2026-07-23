@@ -106,7 +106,36 @@ namespace Arcas.Server.Controllers
             return Ok(setlist);
         }
 
-
+        [HttpGet("getartistsetlistpage")]
+        public async Task<IActionResult> GetArtistSetlistPage(string artistId, int pageNumber)
+        {
+            if (string.IsNullOrWhiteSpace(artistId))
+            {
+                return new BadRequestObjectResult("Artist ID cannot be empty.");
+            }
+            var setlistsApiUrl = $"search/setlists?artistMbid={Uri.EscapeDataString(artistId)}&p={pageNumber}";
+            var response = await _httpClient.GetAsync(setlistsApiUrl);
+            if (!response.IsSuccessStatusCode)
+            {
+                return new StatusCodeResult((int)response.StatusCode);
+            }
+            var setlistsContent = await response.Content.ReadAsStringAsync();
+            var setlistsResult = JsonSerializer.Deserialize<SetlistSearchResult>(setlistsContent);
+            var setlists = setlistsResult.Setlists.Select(s => new DTO.Outbound.Setlist()
+            {
+                Id = s.Id,
+                eventDate = DateOnly.FromDateTime(DateTime.Parse(s.EventDate)),
+                Venue = new DTO.Outbound.Venue() { Name = s.Venue?.Name, City = s.Venue?.City?.Name, Country = s.Venue?.City?.Country?.Name },
+                Artist = new Artist() { Name = s.Artist?.Name, Id = s.Artist?.Id },
+                Tour = s.Tour?.Name,
+                Songs = s.Sets?.Setslist?.SelectMany(set => set.Songs?.Select(song => new DTO.Outbound.Song() { Name = song.Name }) ?? new List<DTO.Outbound.Song>()).Where(s => !string.IsNullOrWhiteSpace(s.Name)).ToList() ?? new List<DTO.Outbound.Song>(),
+                formattedDate = DateTime.Parse(s.EventDate).ToString("d MMM yyyy"),
+                url = s.SetlistUri.ToString()
+            }).ToList();
+            setlists = setlists.Where(s => s.eventDate <= DateOnly.FromDateTime(DateTime.Today)
+                                           && s.Songs.Any()).ToList();
+            return new OkObjectResult(setlists);
+        }
 
     }
 }

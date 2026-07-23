@@ -379,11 +379,15 @@ function ResultsView({
     setlists,
     onSelect,
     onBack,
+    loadNextPage,
+    loadingMore
 }: {
     query: string;
     setlists: Setlist[];
     onSelect: (s: Setlist) => void;
     onBack: () => void;
+        loadNextPage: () => void;
+        loadingMore: boolean;
 }) {
     return (
         <div className="min-h-screen flex flex-col">
@@ -412,9 +416,23 @@ function ResultsView({
                     ))}
                 </div>
 
-                <p className="text-center text-xs font-mono text-muted-foreground mt-8">
-                    Demo mode — showing cached results. Connect API keys for live data.
-                </p>
+                <div className="mt-8 flex flex-col items-center gap-3">
+                    <button
+                        onClick={loadNextPage}
+                        disabled={loadingMore}
+                        className="flex items-center gap-2 text-sm text-muted-foreground hover:text-foreground transition-colors font-mono disabled:opacity-50"
+                    >
+                        {loadingMore ? (
+                            <Loader2 size={13} className="animate-spin" />
+                        ) : (
+                            <ChevronRight size={13} className="rotate-90" />
+                        )}
+                        {loadingMore ? "Loading…" : "Load more"}
+                    </button>
+                    <p className="text-xs font-mono text-muted-foreground">
+                        Demo mode — showing cached results. Connect API keys for live data.
+                    </p>
+                </div>
             </main>
         </div>
     );
@@ -509,10 +527,10 @@ function SetlistView({
 
                 {/* Track list */}
                 <div className="bg-card border border-border rounded-xl overflow-hidden">
-                        <div>
-                                <div className="px-4 py-3 border-b border-border flex items-center gap-2">
-                                    <ListMusic size={14} className="text-muted-foreground" />
-                                </div>
+                    <div>
+                        <div className="px-4 py-3 border-b border-border flex items-center gap-2">
+                            <ListMusic size={14} className="text-muted-foreground" />
+                        </div>
                     </div>
                     <div className="py-2">
                         {setlist.songs.map((song, idx) => {
@@ -667,6 +685,7 @@ export default function App() {
     const [visibility, setVisibility] = useState<PlaylistVisibility>("public");
     const [page, setPage] = useState<number | null>(null);
     const [artist, setArtist] = useState<Artist | null>(null);
+    const [loadingMore, setLoadingMore] = useState(false);
 
     async function handleSearch() {
         if (!query.trim()) return;
@@ -679,11 +698,28 @@ export default function App() {
         }
         const searchResult = await searchResponse.json();
 
+        setPage(1);
         setArtist(searchResult[0].artist);
         setResults(searchResult);
         setView("results");
         setLoading(false);
     }
+
+    async function loadNextPage() {
+        if (!artist || page === null) return;
+
+        setLoading(true);
+        const pageResponse = await fetch(`Setlist/getartistsetlistpage?artistId=${encodeURIComponent(artist.id)}&pageNumber=${page + 1}`);
+        if (!pageResponse.ok) {
+            setLoading(false);
+            return;
+        }
+        const pageResult = await pageResponse.json();
+        setResults((prev) => [...prev, ...pageResult]);
+        setPage((prev) => (prev !== null ? prev + 1 : 1));
+        setLoading(false);
+    }
+
 
     async function handlePasteUrl(url: string) {
         const id = parseSetlistId(url);
@@ -696,7 +732,6 @@ export default function App() {
             return;
         }
         const pasteResult = await pasteResponse.json();
-
 
         setSelected(pasteResult);
         setView("setlist");
@@ -750,6 +785,8 @@ export default function App() {
                     setlists={results}
                     onSelect={handleSelect}
                     onBack={handleReset}
+                    loadNextPage={loadNextPage}
+                    loadingMore={loadingMore}
                 />
             )}
             {view === "setlist" && selected && (
