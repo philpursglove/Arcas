@@ -403,7 +403,7 @@ function ResultsView({
             <main className="flex-1 max-w-2xl mx-auto w-full px-6 py-10">
                 <div className="mb-8">
                     <p className="text-xs font-mono text-muted-foreground mb-1">{setlists.length} setlists found</p>
-                    <h2 className="font-display font-bold text-4xl text-foreground">{query}</h2>
+                    <h2 className="font-display font-bold text-4xl text-foreground">{setlists[0]?.artist.name}</h2>
                 </div>
 
                 <div className="flex flex-col gap-3">
