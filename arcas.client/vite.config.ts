@@ -64,10 +64,6 @@ export default defineConfig({
     },
     server: {
         proxy: {
-            '^/weatherforecast': {
-                target,
-                secure: false
-            },
             '^/Setlist': {
                 target,
                 secure: false
