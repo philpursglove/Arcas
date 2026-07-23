@@ -665,6 +665,8 @@ export default function App() {
     const [selected, setSelected] = useState<Setlist | null>(null);
     const [loading, setLoading] = useState(false);
     const [visibility, setVisibility] = useState<PlaylistVisibility>("public");
+    const [page, setPage] = useState<number | null>(null);
+    const [artist, setArtist] = useState<Artist | null>(null);
 
     async function handleSearch() {
         if (!query.trim()) return;
@@ -677,6 +679,7 @@ export default function App() {
         }
         const searchResult = await searchResponse.json();
 
+        setArtist(searchResult[0].artist);
         setResults(searchResult);
         setView("results");
         setLoading(false);
@@ -708,7 +711,7 @@ export default function App() {
     async function handleCreatePlaylist(v: PlaylistVisibility) {
         setVisibility(v);
         setView("creating");
-        await new Promise((r) => setTimeout(r, 3200));
+        await new Promise((r) => setTimeout(r, 10000));
         setView("done");
     }
 
