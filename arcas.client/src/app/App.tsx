@@ -9,7 +9,8 @@ type MedleyOption = "all" | "first" | "last";
 
 interface Song {
     name: string;
-    cover?: { name: string; artist: { name: string } };
+    cover?: boolean;
+    coverArtist?: Artist;
 }
 
 interface Setlist {
@@ -200,7 +201,7 @@ function TrackRow({
                     <p className="text-sm text-foreground truncate">{song.name}</p>
                     {song.cover && (
                         <p className="text-xs text-muted-foreground font-mono">
-                            cover · {song.cover.name} by {song.coverArtist.name}
+                            cover · {song.name} by {song.coverArtist?.name}
                         </p>
                     )}
                 </div>
