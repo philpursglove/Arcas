@@ -21,6 +21,7 @@ public class SpotifyController : Controller
         _httpClient = httpClient;
 
         _httpClient.BaseAddress = new Uri("https://api.spotify.com/v1/");
+        _httpClient.Timeout = TimeSpan.FromSeconds(30);
 
         _cache = memoryCache;
     }
@@ -53,5 +54,23 @@ public class SpotifyController : Controller
         _cache.Set(SpotifyBearerTokenCacheKey, tokenResult.Token, new TimeSpan(0, 55, 0));
 
         return tokenResult.Token;
+    }
+
+    public async Task<DTO.Outbound.SpotifyTrack> SearchTrack(string artistName, string trackName)
+    {
+        var token = await GetSpotifyBearerToken();
+        _httpClient.DefaultRequestHeaders.Authorization = new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", token);
+        var response = await _httpClient.GetAsync($"search?q=artist:{Uri.EscapeDataString(artistName)}&track:{Uri.EscapeDataString(trackName)}&type=track");
+        if (!response.IsSuccessStatusCode)
+        {
+            throw new Exception($"Failed to search tracks: {response.ReasonPhrase}");
+        }
+        var content = await response.Content.ReadAsStringAsync();
+        var searchResult = JsonSerializer.Deserialize<SpotifyTrackSearchResult>(content);
+        return searchResult.Tracks.Items.Select(t => new DTO.Outbound.SpotifyTrack
+        {
+            Id = t.Id,
+            Name = t.Name
+        }).FirstOrDefault();
     }
 }
