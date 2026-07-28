@@ -11,6 +11,8 @@ builder.Services.AddOpenApi();
 
 builder.Services.AddHttpClient();
 
+builder.Services.AddMemoryCache();
+
 builder.Services.Configure<ApiKeys>(builder.Configuration.GetSection("ApiKeys"));
 
 var app = builder.Build();
