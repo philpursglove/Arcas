@@ -29,6 +29,19 @@ interface Artist {
     id: string;
 }
 
+interface Playlist {
+    id: string;
+    name: string;
+    visibility: PlaylistVisibility;
+    url: string;
+    songs: PlaylistSong[];
+}
+
+interface PlaylistSong {
+    name: string;
+    id: string;
+}
+
 type AppView = "search" | "results" | "setlist" | "creating" | "done";
 
 // ── Mock data ──────────────────────────────────────────────────────────────
@@ -560,6 +573,14 @@ function SetlistView({
 
 function CreatingView({ setlist }: { setlist: Setlist }) {
     const songs = allSongs(setlist);
+    let playlist: Playlist = {
+        name: `${setlist.artist.name}, ${setlist.venue.name}, (${setlist.formattedDate})`,
+        id: '', visibility: 'private', url: '', songs: []
+    };
+    songs.map((s, i) => {
+        playlist.songs.push({ id: '', name: s.name });
+    });
+
     return (
         <div className="min-h-screen flex flex-col items-center justify-center px-6">
             <div className="text-center max-w-sm">
@@ -573,7 +594,7 @@ function CreatingView({ setlist }: { setlist: Setlist }) {
                     {setlist.venue.name}
                 </p>
                 <div className="mt-8 space-y-2">
-                    {songs.slice(0, 5).map((s, i) => (
+                    {songs.map((s, i) => (
                         <div
                             key={i}
                             className="flex items-center gap-3 px-4 py-2.5 bg-card border border-border rounded-lg text-sm"
@@ -583,8 +604,8 @@ function CreatingView({ setlist }: { setlist: Setlist }) {
                             <span className="text-muted-foreground font-mono text-xs truncate">{s.name}</span>
                         </div>
                     ))}
-                    <p className="text-xs font-mono text-muted-foreground pt-1">+ {songs.length - 5} more…</p>
-                </div>
+{/*                     <p className="text-xs font-mono text-muted-foreground pt-1">+ {songs.length - 5} more…</p>
+ */}                </div>
             </div>
         </div>
     );
@@ -749,7 +770,7 @@ export default function App() {
     async function handleCreatePlaylist(v: PlaylistVisibility) {
         setVisibility(v);
         setView("creating");
-        await new Promise((r) => setTimeout(r, 10000));
+        await new Promise((r) => setTimeout(r, 20000));
         setView("done");
     }
 
