@@ -572,6 +572,8 @@ function SetlistView({
 }
 
 function CreatingView({ setlist }: { setlist: Setlist }) {
+    const [playlist,setPlaylist] = useState<Playlist | null>(null);
+
     const songs = allSongs(setlist);
     let playlist: Playlist = {
         name: `${setlist.artist.name}, ${setlist.venue.name}, (${setlist.formattedDate})`,
@@ -580,6 +582,17 @@ function CreatingView({ setlist }: { setlist: Setlist }) {
     songs.map((s, i) => {
         playlist.songs.push({ id: '', name: s.name });
     });
+    setPlaylist(playlist);
+
+    useEffect(() => {
+        playlist?.songs.map(async (s) => {
+            const trackSearchResponse = await fetch(`Spotify/searchtrack?trackName=${encodeURIComponent(s.name)}&artistName=${encodeURIComponent(setlist.artist.name)}`);
+if (!trackSearchResponse.ok)
+{
+    s.id = 'fail';
+}
+        })
+    }, [playlist]);
 
     return (
         <div className="min-h-screen flex flex-col items-center justify-center px-6">
@@ -594,7 +607,7 @@ function CreatingView({ setlist }: { setlist: Setlist }) {
                     {setlist.venue.name}
                 </p>
                 <div className="mt-8 space-y-2">
-                    {songs.map((s, i) => (
+                    {playlist?.songs.map((s, i) => (
                         <div
                             key={i}
                             className="flex items-center gap-3 px-4 py-2.5 bg-card border border-border rounded-lg text-sm"
