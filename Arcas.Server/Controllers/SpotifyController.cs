@@ -67,10 +67,21 @@ public class SpotifyController : Controller
         }
         var content = await response.Content.ReadAsStringAsync();
         var searchResult = JsonSerializer.Deserialize<SpotifyTrackSearchResult>(content);
-        return searchResult.Tracks.Items.Select(t => new DTO.Outbound.SpotifyTrack
+        if (searchResult.Tracks.Items.Any())
         {
-            Id = t.Id,
-            Name = t.Name
-        }).FirstOrDefault();
+            return searchResult.Tracks.Items.Select(t => new DTO.Outbound.SpotifyTrack
+            {
+                Id = t.Id,
+                Name = t.Name
+            }).FirstOrDefault();
+        }
+        else
+        {
+            return new DTO.Outbound.SpotifyTrack
+            {
+                Id = "fail",
+                Name = trackName
+            };
+        }
     }
 }
