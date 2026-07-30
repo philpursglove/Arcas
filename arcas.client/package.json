@@ -73,8 +73,8 @@
         "vite": "8.2.0"
     },
     "peerDependencies": {
-        "react": "18.3.1",
-        "react-dom": "18.3.1"
+        "react": "19.2.8",
+        "react-dom": "19.2.8"
     },
     "peerDependenciesMeta": {
         "react": {
@@ -83,6 +83,10 @@
         "react-dom": {
             "optional": true
         }
+    },
+    "overrides": {
+        "react": "19.2.8",
+        "react-dom": "19.2.8"
     },
     "pnpm": {
         "overrides": {
