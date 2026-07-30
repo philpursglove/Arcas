@@ -574,10 +574,10 @@ function SetlistView({
 function CreatingView({ setlist }: { setlist: Setlist }) {
     const [playlist,setPlaylist] = useState<Playlist | null>(null);
 
-    const songs = allSongs(setlist);
+    const songs = setlist.songs;
     let newPlaylist: Playlist = {
         name: `${setlist.artist.name}, ${setlist.venue.name}, (${setlist.formattedDate})`,
-        id: '', visibility: 'private', url: '', songs: []
+        id: '', visibility: 'public', url: '', songs: []
     };
     songs.map((s, i) => {
         newPlaylist.songs.push({ id: '', name: s.name });
