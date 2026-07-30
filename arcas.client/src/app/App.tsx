@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Search, Music, ListMusic, ChevronRight, Check, Loader2, ExternalLink, Play, Plus, ArrowLeft, Disc3, Link, Globe, Lock, Users } from "lucide-react";
 
 type PlaylistVisibility = "public" | "private" | "collaborative";
@@ -575,14 +575,14 @@ function CreatingView({ setlist }: { setlist: Setlist }) {
     const [playlist,setPlaylist] = useState<Playlist | null>(null);
 
     const songs = allSongs(setlist);
-    let playlist: Playlist = {
+    let newPlaylist: Playlist = {
         name: `${setlist.artist.name}, ${setlist.venue.name}, (${setlist.formattedDate})`,
         id: '', visibility: 'private', url: '', songs: []
     };
     songs.map((s, i) => {
-        playlist.songs.push({ id: '', name: s.name });
+        newPlaylist.songs.push({ id: '', name: s.name });
     });
-    setPlaylist(playlist);
+    setPlaylist(newPlaylist);
 
     useEffect(() => {
         playlist?.songs.map(async (s) => {
