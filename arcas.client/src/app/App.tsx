@@ -690,26 +690,6 @@ function DoneView({
     );
 }
 
-// ── API notice banner ──────────────────────────────────────────────────────
-
-function ApiNoticeBanner() {
-    const [dismissed, setDismissed] = useState(false);
-    if (dismissed) return null;
-    return (
-        <div className="fixed bottom-4 left-1/2 -translate-x-1/2 z-50 flex items-center gap-3 px-4 py-3 bg-card border border-border rounded-xl shadow-xl text-xs font-mono text-muted-foreground max-w-lg w-full mx-4">
-            <span className="text-accent shrink-0">⚠</span>
-            <span className="flex-1">
-                Demo mode — connect your{" "}
-                <span className="text-foreground">setlist.fm API key</span> and{" "}
-                <span className="text-primary">Spotify OAuth</span> to go live.
-            </span>
-            <button onClick={() => setDismissed(true)} className="text-muted-foreground hover:text-foreground transition-colors ml-2 shrink-0">
-                ✕
-            </button>
-        </div>
-    );
-}
-
 // ── Root ───────────────────────────────────────────────────────────────────
 
 export default function App() {
@@ -838,7 +818,6 @@ export default function App() {
                 <DoneView setlist={selected} visibility={visibility} onReset={handleReset} />
             )}
 
-            <ApiNoticeBanner />
         </div>
     );
 }
