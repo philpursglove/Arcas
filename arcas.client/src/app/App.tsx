@@ -572,27 +572,50 @@ function SetlistView({
 }
 
 function CreatingView({ setlist }: { setlist: Setlist }) {
-    const [playlist,setPlaylist] = useState<Playlist | null>(null);
-
-    const songs = setlist.songs.slice(0,1);
-    let newPlaylist: Playlist = {
-        name: `${setlist.artist.name}, ${setlist.venue.name}, (${setlist.formattedDate})`,
-        id: '', visibility: 'public', url: '', songs: []
-    };
-    songs.map((s, i) => {
-        newPlaylist.songs.push({ id: '', name: s.name });
-    });
-    setPlaylist(newPlaylist);
+    const [playlist, setPlaylist] = useState<Playlist | null>(null);
+    const [searchProgress, setSearchProgress] = useState(0);
 
     useEffect(() => {
-        playlist?.songs.map(async (s) => {
-            const trackSearchResponse = await fetch(`Spotify/searchtrack?trackName=${encodeURIComponent(s.name)}&artistName=${encodeURIComponent(setlist.artist.name)}`);
-if (!trackSearchResponse.ok)
-{
-    s.id = 'fail';
-}
-        })
-    }, [playlist]);
+        // Initialize playlist immediately
+        const songs = setlist.songs;
+        const newPlaylist: Playlist = {
+            name: `${setlist.artist.name}, ${setlist.venue.name}, (${setlist.formattedDate})`,
+            id: '',
+            visibility: 'public',
+            url: '',
+            songs: songs.map(s => ({ id: '', name: s.name }))
+        };
+        setPlaylist(newPlaylist);
+
+        // Search for tracks asynchronously
+        async function searchTracks() {
+            for (let i = 0; i < newPlaylist.songs.length; i++) {
+                const song = newPlaylist.songs[i];
+                try {
+                    const response = await fetch(
+                        `Spotify/searchtrack?trackName=${encodeURIComponent(song.name)}&artistName=${encodeURIComponent(setlist.artist.name)}`
+                    );
+
+                    if (response.ok) {
+                        const data = await response.json();
+                        song.id = data.id;
+                    } else {
+                        song.id = 'fail';
+                    }
+                } catch (error) {
+                    song.id = 'fail';
+                }
+
+                setSearchProgress(i + 1);
+                // Update playlist state to trigger UI rerender
+                setPlaylist({ ...newPlaylist });
+            }
+        }
+
+        searchTracks();
+    }, [setlist]);
+
+
 
     return (
         <div className="min-h-screen flex flex-col items-center justify-center px-6">
@@ -602,9 +625,10 @@ if (!trackSearchResponse.ok)
                 </div>
                 <h2 className="font-display font-bold text-3xl text-foreground mb-2">Building your playlist…</h2>
                 <p className="text-muted-foreground text-sm">
-                    Searching Spotify for {songs.length} tracks from{" "}
+                    Searching Spotify for {playlist?.songs.length ?? 0} tracks from{" "}
                     <span className="text-foreground font-medium">{setlist.artist.name}</span> at{" "}
                     {setlist.venue.name}
+                    {searchProgress > 0 && ` (${searchProgress}/${playlist?.songs.length ?? 0})`}
                 </p>
                 <div className="mt-8 space-y-2">
                     {playlist?.songs.map((s, i) => (
@@ -634,7 +658,7 @@ function DoneView({
     onReset: () => void;
 }) {
     const songs = allSongs(setlist);
-    const playlistName = `${setlist.artist.name} @ ${setlist.venue.name} (${setlist.eventDate.getFullYear()})`;
+    const playlistName = `${setlist.artist.name} @ ${setlist.venue.name} (${setlist.formattedDate})`;
     const visOption = VISIBILITY_OPTIONS.find((o) => o.value === visibility)!;
     const VisIcon = visOption.Icon;
 
@@ -763,8 +787,6 @@ export default function App() {
     async function handleCreatePlaylist(v: PlaylistVisibility) {
         setVisibility(v);
         setView("creating");
-        await new Promise((r) => setTimeout(r, 20000));
-        setView("done");
     }
 
     function handleReset() {
