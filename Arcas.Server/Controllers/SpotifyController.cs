@@ -56,6 +56,7 @@ public class SpotifyController : Controller
         return tokenResult.Token;
     }
 
+    [HttpGet("searchtrack")]
     public async Task<DTO.Outbound.SpotifyTrack> SearchTrack(string artistName, string trackName)
     {
         var token = await GetSpotifyBearerToken();
