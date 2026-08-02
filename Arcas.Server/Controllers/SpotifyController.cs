@@ -6,7 +6,10 @@ using System.Text.Json;
 
 namespace Arcas.Server.Controllers;
 
-public class SpotifyController : Controller
+[ApiController]
+[Route("[controller]")]
+
+public class SpotifyController : ControllerBase
 {
     private readonly ApiKeys _apiKeys;
     private readonly HttpClient _httpClient;
@@ -34,7 +37,6 @@ public class SpotifyController : Controller
         }
 
         var httpClient = new HttpClient();
-        httpClient.DefaultRequestHeaders.Add("Content-Type", "application/x-www-form-urlencoded");
 
         var result = await httpClient.PostAsync("https://accounts.spotify.com/api/token", new FormUrlEncodedContent(new[]
         {
@@ -74,15 +76,13 @@ public class SpotifyController : Controller
             {
                 Id = t.Id,
                 Name = t.Name
-            }).FirstOrDefault();
+            }).FirstOrDefault(t => t.Name == trackName);
         }
-        else
+
+        return new DTO.Outbound.SpotifyTrack
         {
-            return new DTO.Outbound.SpotifyTrack
-            {
-                Id = "fail",
-                Name = trackName
-            };
-        }
+            Id = "fail",
+            Name = trackName
+        };
     }
 }
