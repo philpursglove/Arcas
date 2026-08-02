@@ -1,10 +1,10 @@
 import { fileURLToPath, URL } from 'node:url';
 
 import { defineConfig } from 'vite';
-import react    from '@vitejs/plugin-react';
-import fs from 'fs';        
+import react from '@vitejs/plugin-react';
+import fs from 'fs';
 import path from 'path';
-import child_process from 'child_process';  
+import child_process from 'child_process';
 import { env } from 'process';
 import tailwindcss from '@tailwindcss/vite'
 
@@ -53,10 +53,10 @@ function figmaAssetResolver() {
 // https://vitejs.dev/config/
 export default defineConfig({
     plugins: [react(),
-        figmaAssetResolver(),
-        // The React and Tailwind plugins are both required for Make, even if
-        // Tailwind is not being actively used – do not remove them
-        tailwindcss(),],
+    figmaAssetResolver(),
+    // The React and Tailwind plugins are both required for Make, even if
+    // Tailwind is not being actively used – do not remove them
+    tailwindcss(),],
     resolve: {
         alias: {
             '@': fileURLToPath(new URL('./src', import.meta.url))
@@ -66,6 +66,10 @@ export default defineConfig({
         proxy: {
             '^/Setlist': {
                 target,
+                secure: false
+            },
+            '^/Spotify': {
+                target, 
                 secure: false
             }
         },
