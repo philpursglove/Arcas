@@ -16,8 +16,8 @@ public class SpotifyTrackSearchTracks
 
 public class SpotifyTrack
 {
-    [JsonPropertyName("id")]
-    public string Id { get; set; }
+    [JsonPropertyName("uri")]
+    public string SpotifyUri { get; set; }
 
     [JsonPropertyName("name")]
     public string Name { get; set; }

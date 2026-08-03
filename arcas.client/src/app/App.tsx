@@ -39,7 +39,7 @@ interface Playlist {
 
 interface PlaylistSong {
     name: string;
-    id: string;
+    spotifyUri: string;
 }
 
 type AppView = "search" | "results" | "setlist" | "creating" | "done";
@@ -137,8 +137,8 @@ function allSongs(setlist: Setlist): Song[] {
 
 function Pill({ children }: { children: React.ReactNode }) {
     return (
-        <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-mono bg-muted text-muted-foreground border border-border">
-            {children}
+        <span className= "inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-mono bg-muted text-muted-foreground border border-border" >
+        { children }
         </span>
     );
 }
@@ -153,45 +153,49 @@ function SetlistCard({
     const songs = allSongs(setlist);
     return (
         <button
-            onClick={onClick}
-            className="w-full text-left group bg-card border border-border rounded-xl p-5 hover:border-primary/40 hover:bg-primary/5 transition-all duration-200"
+            onClick= { onClick }
+    className = "w-full text-left group bg-card border border-border rounded-xl p-5 hover:border-primary/40 hover:bg-primary/5 transition-all duration-200"
         >
-            <div className="flex items-start justify-between gap-3">
-                <div className="flex-1 min-w-0">
-                    <div className="flex items-center gap-2 mb-1">
-                        <span className="text-xs font-mono text-muted-foreground">{setlist.formattedDate}</span>
-                        {setlist.tour && <Pill>{setlist.tour}</Pill>}
-                    </div>
-                    <h3 className="font-display text-lg font-semibold text-foreground leading-tight">
-                        {setlist.venue.name}
-                    </h3>
-                    <p className="text-sm text-muted-foreground mt-0.5">
-                        {setlist.venue.city}, {setlist.venue.country}
-                    </p>
+        <div className="flex items-start justify-between gap-3" >
+            <div className="flex-1 min-w-0" >
+                <div className="flex items-center gap-2 mb-1" >
+                    <span className="text-xs font-mono text-muted-foreground" > { setlist.formattedDate } </span>
+    { setlist.tour && <Pill>{ setlist.tour } </Pill> }
+    </div>
+        < h3 className = "font-display text-lg font-semibold text-foreground leading-tight" >
+        { setlist.venue.name }
+            </h3>
+            < p className = "text-sm text-muted-foreground mt-0.5" >
+            { setlist.venue.city }, { setlist.venue.country }
+            </p>
 
-                    <div className="mt-3 flex flex-wrap gap-1.5">
-                        {songs.slice(0, 4).map((s, i) => (
-                            <span key={i} className="text-xs px-2 py-0.5 bg-secondary rounded-md text-muted-foreground font-mono">
-                                {s.name}
-                            </span>
-                        ))}
-                        {songs.length > 4 && (
-                            <span className="text-xs px-2 py-0.5 rounded-md text-muted-foreground font-mono">
-                                +{songs.length - 4} more
-                            </span>
-                        )}
-                    </div>
-                </div>
+                < div className = "mt-3 flex flex-wrap gap-1.5" >
+                {
+                    songs.slice(0, 4).map((s, i) => (
+                        <span key= { i } className = "text-xs px-2 py-0.5 bg-secondary rounded-md text-muted-foreground font-mono" >
+                        { s.name }
+                        </span>
+                    ))
+                }
+    {
+        songs.length > 4 && (
+            <span className="text-xs px-2 py-0.5 rounded-md text-muted-foreground font-mono" >
+                +{ songs.length - 4 } more
+                    </span>
+                        )
+    }
+    </div>
+        </div>
 
-                <div className="flex flex-col items-end gap-2 shrink-0">
-                    <span className="text-2xl font-display font-bold text-primary">{songs.length}</span>
-                    <span className="text-xs text-muted-foreground font-mono">songs</span>
-                    <ChevronRight
-                        size={16}
-                        className="text-muted-foreground group-hover:text-primary group-hover:translate-x-0.5 transition-all"
-                    />
-                </div>
-            </div>
+        < div className = "flex flex-col items-end gap-2 shrink-0" >
+            <span className="text-2xl font-display font-bold text-primary" > { songs.length } </span>
+                < span className = "text-xs text-muted-foreground font-mono" > songs </span>
+                    < ChevronRight
+    size = { 16}
+    className = "text-muted-foreground group-hover:text-primary group-hover:translate-x-0.5 transition-all"
+        />
+        </div>
+        </div>
         </button>
     );
 }
@@ -205,21 +209,24 @@ function TrackRow({
     }) {
     return (
         <>
-            <div className="group flex items-center gap-4 px-4 py-3 rounded-lg hover:bg-secondary transition-colors">
-                <span className="w-6 text-right text-xs font-mono text-muted-foreground shrink-0 group-hover:text-primary">
-                    {index + 1}
-                </span>
-                <Play size={12} className="text-muted-foreground opacity-0 group-hover:opacity-100 transition-opacity shrink-0" />
-                <div className="flex-1 min-w-0">
-                    <p className="text-sm text-foreground truncate">{song.name}</p>
-                    {song.cover && (
-                        <p className="text-xs text-muted-foreground font-mono">
-                            cover · {song.name} by {song.coverArtist?.name}
-                        </p>
-                    )}
-                </div>
-            </div>
-        </>
+        <div className= "group flex items-center gap-4 px-4 py-3 rounded-lg hover:bg-secondary transition-colors" >
+        <span className="w-6 text-right text-xs font-mono text-muted-foreground shrink-0 group-hover:text-primary" >
+            { index + 1
+}
+</span>
+    < Play size = { 12} className = "text-muted-foreground opacity-0 group-hover:opacity-100 transition-opacity shrink-0" />
+        <div className="flex-1 min-w-0" >
+            <p className="text-sm text-foreground truncate" > { song.name } </p>
+{
+    song.cover && (
+        <p className="text-xs text-muted-foreground font-mono" >
+            cover · { song.name } by { song.coverArtist?.name }
+    </p>
+                    )
+}
+</div>
+    </div>
+    </>
     );
 }
 
@@ -254,139 +261,146 @@ function HeroSearch({
 
 
     return (
-        <div className="min-h-screen flex flex-col">
-            {/* Header */}
-            <header className="flex items-center justify-between px-8 py-6 border-b border-border">
-                <div className="flex items-center gap-2.5">
-                    <Disc3 size={22} className="text-primary" />
-                    <span className="font-display font-bold text-xl tracking-tight text-foreground">Arcas</span>
-                </div>
-                <a
-                    href="https://www.setlist.fm"
-                    target="_blank"
-                    rel="noreferrer"
-                    className="flex items-center gap-1.5 text-xs font-mono text-muted-foreground hover:text-foreground transition-colors"
-                >
-                    powered by setlist.fm <ExternalLink size={11} />
-                </a>
+        <div className= "min-h-screen flex flex-col" >
+        {/* Header */ }
+        < header className = "flex items-center justify-between px-8 py-6 border-b border-border" >
+            <div className="flex items-center gap-2.5" >
+                <Disc3 size={ 22 } className = "text-primary" />
+                    <span className="font-display font-bold text-xl tracking-tight text-foreground" > Arcas </span>
+                        </div>
+                        < a
+    href = "https://www.setlist.fm"
+    target = "_blank"
+    rel = "noreferrer"
+    className = "flex items-center gap-1.5 text-xs font-mono text-muted-foreground hover:text-foreground transition-colors"
+        >
+        powered by setlist.fm < ExternalLink size = { 11} />
+            </a>
             </header>
 
-            {/* Hero */}
-            <div className="flex-1 flex flex-col items-center justify-center px-6 text-center">
-                <div className="mb-3 inline-flex items-center gap-2 px-3 py-1.5 rounded-full border border-primary/20 bg-primary/5 text-primary text-xs font-mono">
-                    <Music size={11} />
+    {/* Hero */ }
+    <div className="flex-1 flex flex-col items-center justify-center px-6 text-center" >
+        <div className="mb-3 inline-flex items-center gap-2 px-3 py-1.5 rounded-full border border-primary/20 bg-primary/5 text-primary text-xs font-mono" >
+            <Music size={ 11 } />
                     concert setlists → spotify playlists
-                </div>
+        </div>
 
-                <h1 className="font-display font-bold text-6xl md:text-8xl text-foreground leading-none tracking-tight mb-4 mt-6">
-                    You were<br />
-                    <span className="text-primary italic">there.</span>
-                </h1>
-                <p className="text-muted-foreground text-lg max-w-md leading-relaxed mb-12">
-                    Search for any artist, find the exact setlist from a show you attended, and build the playlist on Spotify in seconds.
+        < h1 className = "font-display font-bold text-6xl md:text-8xl text-foreground leading-none tracking-tight mb-4 mt-6" >
+            You were < br />
+                <span className="text-primary italic" > there.</span>
+                    </h1>
+                    < p className = "text-muted-foreground text-lg max-w-md leading-relaxed mb-12" >
+                        Search for any artist, find the exact setlist from a show you attended, and build the playlist on Spotify in seconds.
                 </p>
 
-                {/* Tab toggle */}
-                <div className="w-full max-w-xl">
-                    <div className="flex items-center gap-1 p-1 bg-card border border-border rounded-xl mb-3 w-fit mx-auto">
-                        <button
-                            onClick={() => setTab("search")}
-                            className={`flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium transition-all ${tab === "search"
-                                ? "bg-primary text-primary-foreground"
-                                : "text-muted-foreground hover:text-foreground"
-                                }`}
+    {/* Tab toggle */ }
+    <div className="w-full max-w-xl" >
+        <div className="flex items-center gap-1 p-1 bg-card border border-border rounded-xl mb-3 w-fit mx-auto" >
+            <button
+                            onClick={ () => setTab("search") }
+    className = {`flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium transition-all ${tab === "search"
+        ? "bg-primary text-primary-foreground"
+        : "text-muted-foreground hover:text-foreground"
+        }`
+}
                         >
-                            <Search size={13} />
+    <Search size={ 13 } />
                             Search artist
-                        </button>
-                        <button
-                            onClick={() => setTab("url")}
-                            className={`flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium transition-all ${tab === "url"
-                                ? "bg-primary text-primary-foreground"
-                                : "text-muted-foreground hover:text-foreground"
-                                }`}
+    </button>
+    < button
+onClick = {() => setTab("url")}
+className = {`flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium transition-all ${tab === "url"
+    ? "bg-primary text-primary-foreground"
+    : "text-muted-foreground hover:text-foreground"
+    }`}
                         >
-                            <Link size={13} />
+    <Link size={ 13 } />
                             Paste URL
-                        </button>
-                    </div>
+    </button>
+    </div>
 
-                    {tab === "search" ? (
-                        <>
-                            <div className="relative flex items-center">
-                                <Search size={18} className="absolute left-4 text-muted-foreground pointer-events-none" />
-                                <input
+{
+    tab === "search" ? (
+        <>
+        <div className= "relative flex items-center" >
+        <Search size={ 18 } className = "absolute left-4 text-muted-foreground pointer-events-none" />
+            <input
                                     type="text"
-                                    placeholder="Search for an artist…"
-                                    value={query}
-                                    onChange={(e) => setQuery(e.target.value)}
-                                    onKeyDown={(e) => e.key === "Enter" && onSearch()}
-                                    className="w-full pl-12 pr-36 py-4 bg-card border border-border rounded-xl text-foreground placeholder-muted-foreground focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary/30 transition-all font-sans text-base"
-                                />
-                                <button
-                                    onClick={onSearch}
-                                    disabled={loading || !query.trim()}
-                                    className="absolute right-2 flex items-center gap-2 px-5 py-2.5 bg-primary text-primary-foreground rounded-lg font-semibold text-sm hover:bg-primary/90 disabled:opacity-40 disabled:cursor-not-allowed transition-all"
-                                >
-                                    {loading ? <Loader2 size={15} className="animate-spin" /> : null}
-                                    Search
-                                </button>
-                            </div>
-                            <p className="text-xs text-muted-foreground font-mono mt-3">
-                                Try: Radiohead, Arctic Monkeys, Beyoncé, Taylor Swift
-                            </p>
-                        </>
+    placeholder = "Search for an artist…"
+    value = { query }
+    onChange = {(e) => setQuery(e.target.value)
+}
+onKeyDown = {(e) => e.key === "Enter" && onSearch()}
+className = "w-full pl-12 pr-36 py-4 bg-card border border-border rounded-xl text-foreground placeholder-muted-foreground focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary/30 transition-all font-sans text-base"
+    />
+    <button
+                                    onClick={ onSearch }
+disabled = { loading || !query.trim()}
+className = "absolute right-2 flex items-center gap-2 px-5 py-2.5 bg-primary text-primary-foreground rounded-lg font-semibold text-sm hover:bg-primary/90 disabled:opacity-40 disabled:cursor-not-allowed transition-all"
+    >
+    { loading?<Loader2 size = { 15 } className = "animate-spin" /> : null}
+Search
+    </button>
+    </div>
+    < p className = "text-xs text-muted-foreground font-mono mt-3" >
+        Try: Radiohead, Arctic Monkeys, Beyoncé, Taylor Swift
+            </p>
+            </>
                     ) : (
-                        <>
-                            <div className="relative flex items-center">
-                                <Link size={18} className="absolute left-4 text-muted-foreground pointer-events-none" />
-                                <input
+    <>
+    <div className= "relative flex items-center" >
+    <Link size={ 18 } className = "absolute left-4 text-muted-foreground pointer-events-none" />
+        <input
                                     type="url"
-                                    placeholder="https://www.setlist.fm/setlist/…"
-                                    value={urlInput}
-                                    onChange={(e) => { setUrlInput(e.target.value); setUrlError(""); }}
-                                    onKeyDown={(e) => e.key === "Enter" && handleUrlSubmit()}
-                                    className={`w-full pl-12 pr-36 py-4 bg-card border rounded-xl text-foreground placeholder-muted-foreground focus:outline-none focus:ring-1 transition-all font-mono text-sm ${urlError
-                                        ? "border-destructive focus:border-destructive focus:ring-destructive/30"
-                                        : "border-border focus:border-primary focus:ring-primary/30"
-                                        }`}
+placeholder = "https://www.setlist.fm/setlist/…"
+value = { urlInput }
+onChange = {(e) => { setUrlInput(e.target.value); setUrlError(""); }}
+onKeyDown = {(e) => e.key === "Enter" && handleUrlSubmit()}
+className = {`w-full pl-12 pr-36 py-4 bg-card border rounded-xl text-foreground placeholder-muted-foreground focus:outline-none focus:ring-1 transition-all font-mono text-sm ${urlError
+    ? "border-destructive focus:border-destructive focus:ring-destructive/30"
+    : "border-border focus:border-primary focus:ring-primary/30"
+    }`}
                                 />
-                                <button
-                                    onClick={handleUrlSubmit}
-                                    disabled={loading || !urlInput.trim()}
-                                    className="absolute right-2 flex items-center gap-2 px-5 py-2.5 bg-primary text-primary-foreground rounded-lg font-semibold text-sm hover:bg-primary/90 disabled:opacity-40 disabled:cursor-not-allowed transition-all"
-                                >
-                                    {loading ? <Loader2 size={15} className="animate-spin" /> : null}
-                                    Load
-                                </button>
-                            </div>
-                            {urlError ? (
-                                <p className="text-xs text-destructive font-mono mt-3">{urlError}</p>
+    < button
+onClick = { handleUrlSubmit }
+disabled = { loading || !urlInput.trim()}
+className = "absolute right-2 flex items-center gap-2 px-5 py-2.5 bg-primary text-primary-foreground rounded-lg font-semibold text-sm hover:bg-primary/90 disabled:opacity-40 disabled:cursor-not-allowed transition-all"
+    >
+    { loading?<Loader2 size = { 15 } className = "animate-spin" /> : null}
+Load
+    </button>
+    </div>
+{
+    urlError ? (
+        <p className= "text-xs text-destructive font-mono mt-3" > { urlError } </p>
                             ) : (
-                                <p className="text-xs text-muted-foreground font-mono mt-3">
-                                    Paste any setlist.fm setlist page URL
-                                </p>
-                            )}
-                        </>
+        <p className= "text-xs text-muted-foreground font-mono mt-3" >
+        Paste any setlist.fm setlist page URL
+            </p>
+                            )
+}
+</>
                     )}
-                </div>
+</div>
 
-                {/* Steps */}
-                <div className="mt-20 grid grid-cols-3 gap-8 max-w-xl w-full">
-                    {[
-                        { n: "01", label: "Find a setlist", desc: "Search any artist or paste a setlist.fm URL directly" },
-                        { n: "02", label: "Pick your show", desc: "Select the exact date and venue" },
-                        { n: "03", label: "Build the playlist", desc: "One click to create it in Spotify" },
+{/* Steps */ }
+<div className="mt-20 grid grid-cols-3 gap-8 max-w-xl w-full" >
+{
+    [
+    { n: "01", label: "Find a setlist", desc: "Search any artist or paste a setlist.fm URL directly" },
+    { n: "02", label: "Pick your show", desc: "Select the exact date and venue" },
+    { n: "03", label: "Build the playlist", desc: "One click to create it in Spotify" },
                     ].map((step) => (
-                        <div key={step.n} className="text-left">
-                            <span className="font-mono text-xs text-accent">{step.n}</span>
-                            <h3 className="font-display font-semibold text-foreground mt-1 mb-1 text-base">{step.label}</h3>
-                            <p className="text-xs text-muted-foreground leading-relaxed">{step.desc}</p>
-                        </div>
-                    ))}
-                </div>
-            </div>
-        </div>
+        <div key= { step.n } className = "text-left" >
+        <span className="font-mono text-xs text-accent" > { step.n } </span>
+    < h3 className = "font-display font-semibold text-foreground mt-1 mb-1 text-base" > { step.label } </h3>
+    < p className = "text-xs text-muted-foreground leading-relaxed" > { step.desc } </p>
+    </div>
+    ))
+}
+    </div>
+    </div>
+    </div>
     );
 }
 
@@ -402,55 +416,58 @@ function ResultsView({
     setlists: Setlist[];
     onSelect: (s: Setlist) => void;
     onBack: () => void;
-        loadNextPage: () => void;
-        loadingMore: boolean;
+    loadNextPage: () => void;
+    loadingMore: boolean;
 }) {
     return (
-        <div className="min-h-screen flex flex-col">
-            <header className="flex items-center justify-between px-8 py-6 border-b border-border sticky top-0 bg-background/80 backdrop-blur-md z-10">
-                <div className="flex items-center gap-2.5">
-                    <Disc3 size={22} className="text-primary" />
-                    <span className="font-display font-bold text-xl tracking-tight text-foreground">Arcas</span>
-                </div>
-                <button
-                    onClick={onBack}
-                    className="flex items-center gap-1.5 text-sm text-muted-foreground hover:text-foreground transition-colors font-mono"
-                >
-                    <ArrowLeft size={14} /> new search
-                </button>
+        <div className= "min-h-screen flex flex-col" >
+        <header className="flex items-center justify-between px-8 py-6 border-b border-border sticky top-0 bg-background/80 backdrop-blur-md z-10" >
+            <div className="flex items-center gap-2.5" >
+                <Disc3 size={ 22 } className = "text-primary" />
+                    <span className="font-display font-bold text-xl tracking-tight text-foreground" > Arcas </span>
+                        </div>
+                        < button
+    onClick = { onBack }
+    className = "flex items-center gap-1.5 text-sm text-muted-foreground hover:text-foreground transition-colors font-mono"
+        >
+        <ArrowLeft size={ 14 } /> new search
+            </button>
             </header>
 
-            <main className="flex-1 max-w-2xl mx-auto w-full px-6 py-10">
-                <div className="mb-8">
-                    <p className="text-xs font-mono text-muted-foreground mb-1">{setlists.length} setlists found</p>
-                    <h2 className="font-display font-bold text-4xl text-foreground">{setlists[0]?.artist.name}</h2>
-                </div>
+            < main className = "flex-1 max-w-2xl mx-auto w-full px-6 py-10" >
+                <div className="mb-8" >
+                    <p className="text-xs font-mono text-muted-foreground mb-1" > { setlists.length } setlists found </p>
+                        < h2 className = "font-display font-bold text-4xl text-foreground" > { setlists[0]?.artist.name } </h2>
+                            </div>
 
-                <div className="flex flex-col gap-3">
-                    {setlists.map((s) => (
-                        <SetlistCard key={s.id} setlist={s} onClick={() => onSelect(s)} />
-                    ))}
-                </div>
+                            < div className = "flex flex-col gap-3" >
+                                {
+                                    setlists.map((s) => (
+                                        <SetlistCard key= { s.id } setlist = { s } onClick = {() => onSelect(s)} />
+                    ))
+}
+</div>
 
-                <div className="mt-8 flex flex-col items-center gap-3">
-                    <button
-                        onClick={loadNextPage}
-                        disabled={loadingMore}
-                        className="flex items-center gap-2 text-sm text-muted-foreground hover:text-foreground transition-colors font-mono disabled:opacity-50"
-                    >
-                        {loadingMore ? (
-                            <Loader2 size={13} className="animate-spin" />
-                        ) : (
-                            <ChevronRight size={13} className="rotate-90" />
+    < div className = "mt-8 flex flex-col items-center gap-3" >
+        <button
+                        onClick={ loadNextPage }
+disabled = { loadingMore }
+className = "flex items-center gap-2 text-sm text-muted-foreground hover:text-foreground transition-colors font-mono disabled:opacity-50"
+    >
+    {
+        loadingMore?(
+                            <Loader2 size = { 13} className = "animate-spin" />
+                        ): (
+                <ChevronRight size = { 13 } className = "rotate-90" />
                         )}
-                        {loadingMore ? "Loading…" : "Load more"}
-                    </button>
-                    <p className="text-xs font-mono text-muted-foreground">
-                        Demo mode — showing cached results. Connect API keys for live data.
+{ loadingMore ? "Loading…" : "Load more" }
+</button>
+    < p className = "text-xs font-mono text-muted-foreground" >
+        Demo mode — showing cached results.Connect API keys for live data.
                     </p>
-                </div>
+            </div>
             </main>
-        </div>
+            </div>
     );
 }
 
@@ -473,101 +490,104 @@ function SetlistView({
     const songs = setlist.songs;
 
     return (
-        <div className="min-h-screen flex flex-col">
-            <header className="flex items-center justify-between px-8 py-6 border-b border-border sticky top-0 bg-background/80 backdrop-blur-md z-10">
-                <div className="flex items-center gap-2.5">
-                    <Disc3 size={22} className="text-primary" />
-                    <span className="font-display font-bold text-xl tracking-tight text-foreground">Arcas</span>
-                </div>
-                <button
-                    onClick={onBack}
-                    className="flex items-center gap-1.5 text-sm text-muted-foreground hover:text-foreground transition-colors font-mono"
-                >
-                    <ArrowLeft size={14} /> back to results
-                </button>
+        <div className= "min-h-screen flex flex-col" >
+        <header className="flex items-center justify-between px-8 py-6 border-b border-border sticky top-0 bg-background/80 backdrop-blur-md z-10" >
+            <div className="flex items-center gap-2.5" >
+                <Disc3 size={ 22 } className = "text-primary" />
+                    <span className="font-display font-bold text-xl tracking-tight text-foreground" > Arcas </span>
+                        </div>
+                        < button
+    onClick = { onBack }
+    className = "flex items-center gap-1.5 text-sm text-muted-foreground hover:text-foreground transition-colors font-mono"
+        >
+        <ArrowLeft size={ 14 } /> back to results
+            </button>
             </header>
 
-            <main className="flex-1 max-w-2xl mx-auto w-full px-6 py-10">
-                {/* Setlist meta */}
-                <div className="mb-8">
-                    <div className="flex items-center gap-2 mb-2">
-                        <span className="text-xs font-mono text-muted-foreground">{setlist.formattedDate}</span>
-                        {setlist.tour && <Pill>{setlist.tour}</Pill>}
-                    </div>
-                    <h2 className="font-display font-bold text-4xl text-foreground leading-tight">{setlist.artist.name}</h2>
-                    <p className="text-muted-foreground mt-1">
-                        {setlist.venue.name} · {setlist.venue.city}, {setlist.venue.country}
-                    </p>
+            < main className = "flex-1 max-w-2xl mx-auto w-full px-6 py-10" >
+            {/* Setlist meta */ }
+                < div className = "mb-8" >
+                    <div className="flex items-center gap-2 mb-2" >
+                        <span className="text-xs font-mono text-muted-foreground" > { setlist.formattedDate } </span>
+    { setlist.tour && <Pill>{ setlist.tour } </Pill> }
+    </div>
+        < h2 className = "font-display font-bold text-4xl text-foreground leading-tight" > { setlist.artist.name } </h2>
+            < p className = "text-muted-foreground mt-1" >
+            { setlist.venue.name } · { setlist.venue.city }, { setlist.venue.country }
+    </p>
 
-                    <div className="flex items-center gap-4 mt-6">
-                        <div className="text-center">
-                            <p className="font-display font-bold text-3xl text-primary">{setlist.songs.length}</p>
-                            <p className="text-xs font-mono text-muted-foreground">songs</p>
+        < div className = "flex items-center gap-4 mt-6" >
+            <div className="text-center" >
+                <p className="font-display font-bold text-3xl text-primary" > { setlist.songs.length } </p>
+                    < p className = "text-xs font-mono text-muted-foreground" > songs </p>
                         </div>
-                        <div className="w-px h-10 bg-border" />
-                    </div>
-
-                    {/* Visibility + Create */}
-                    <div className="mt-6 flex flex-col sm:flex-row items-stretch sm:items-center gap-3 p-4 bg-card border border-border rounded-xl">
-                        <div className="flex-1">
-                            <p className="text-xs font-mono text-muted-foreground mb-2 uppercase tracking-wider">Playlist visibility</p>
-                            <div className="flex gap-2">
-                                {VISIBILITY_OPTIONS.map(({ value, label, desc, Icon }) => (
-                                    <button
-                                        key={value}
-                                        onClick={() => setVisibility(value)}
-                                        title={desc}
-                                        className={`flex items-center gap-1.5 px-3 py-2 rounded-lg text-sm font-medium border transition-all ${visibility === value
-                                            ? "bg-primary/10 border-primary/40 text-primary"
-                                            : "border-border text-muted-foreground hover:text-foreground hover:border-border/80"
-                                            }`}
-                                    >
-                                        <Icon size={13} />
-                                        {label}
-                                    </button>
-                                ))}
+                        < div className = "w-px h-10 bg-border" />
                             </div>
-                            <p className="text-xs text-muted-foreground font-mono mt-1.5">
-                                {VISIBILITY_OPTIONS.find((o) => o.value === visibility)?.desc}
-                            </p>
-                        </div>
+
+    {/* Visibility + Create */ }
+    <div className="mt-6 flex flex-col sm:flex-row items-stretch sm:items-center gap-3 p-4 bg-card border border-border rounded-xl" >
+        <div className="flex-1" >
+            <p className="text-xs font-mono text-muted-foreground mb-2 uppercase tracking-wider" > Playlist visibility </p>
+                < div className = "flex gap-2" >
+                {
+                    VISIBILITY_OPTIONS.map(({ value, label, desc, Icon }) => (
                         <button
-                            onClick={() => onCreatePlaylist(visibility)}
-                            className="flex items-center justify-center gap-2 px-6 py-3 bg-primary text-primary-foreground rounded-xl font-semibold text-sm hover:bg-primary/90 active:scale-95 transition-all shadow-lg shadow-primary/20 shrink-0"
-                        >
-                            <Plus size={16} />
-                            Create Spotify Playlist
-                        </button>
-                    </div>
-                </div>
-
-                {/* Track list */}
-                <div className="bg-card border border-border rounded-xl overflow-hidden">
-                    <div>
-                        <div className="px-4 py-3 border-b border-border flex items-center gap-2">
-                            <ListMusic size={14} className="text-muted-foreground" />
-                        </div>
-                    </div>
-                    <div className="py-2">
-                        {setlist.songs.map((song, idx) => {
-                            return (
-                                <TrackRow
-                                    key={idx}
-                                    index={idx}
-                                    song={song}
-                                />
-                            );
-                        })}
-                    </div>
-                </div>
-
-                <p className="text-center text-xs font-mono text-muted-foreground mt-6">
-                    <a href={setlist.url} target="_blank" rel="noreferrer" className="hover:text-foreground transition-colors flex items-center gap-1 justify-center">
-                        View on setlist.fm <ExternalLink size={10} />
-                    </a>
-                </p>
-            </main>
+                                        key= { value }
+                                        onClick = {() => setVisibility(value)}
+    title = { desc }
+    className = {`flex items-center gap-1.5 px-3 py-2 rounded-lg text-sm font-medium border transition-all ${visibility === value
+        ? "bg-primary/10 border-primary/40 text-primary"
+        : "border-border text-muted-foreground hover:text-foreground hover:border-border/80"
+        }`
+}
+                                    >
+    <Icon size={ 13 } />
+{ label }
+</button>
+                                ))}
+</div>
+    < p className = "text-xs text-muted-foreground font-mono mt-1.5" >
+    { VISIBILITY_OPTIONS.find((o) => o.value === visibility)?.desc }
+        </p>
         </div>
+        < button
+onClick = {() => onCreatePlaylist(visibility)}
+className = "flex items-center justify-center gap-2 px-6 py-3 bg-primary text-primary-foreground rounded-xl font-semibold text-sm hover:bg-primary/90 active:scale-95 transition-all shadow-lg shadow-primary/20 shrink-0"
+    >
+    <Plus size={ 16 } />
+                            Create Spotify Playlist
+    </button>
+    </div>
+    </div>
+
+{/* Track list */ }
+<div className="bg-card border border-border rounded-xl overflow-hidden" >
+    <div>
+    <div className="px-4 py-3 border-b border-border flex items-center gap-2" >
+        <ListMusic size={ 14 } className = "text-muted-foreground" />
+            </div>
+            </div>
+            < div className = "py-2" >
+            {
+                setlist.songs.map((song, idx) => {
+                    return (
+                        <TrackRow
+                                    key= { idx }
+                    index = { idx }
+                    song = { song }
+                        />
+                            );
+            })}
+</div>
+    </div>
+
+    < p className = "text-center text-xs font-mono text-muted-foreground mt-6" >
+        <a href={ setlist.url } target = "_blank" rel = "noreferrer" className = "hover:text-foreground transition-colors flex items-center gap-1 justify-center" >
+            View on setlist.fm < ExternalLink size = { 10} />
+                </a>
+                </p>
+                </main>
+                </div>
     );
 }
 
@@ -583,7 +603,7 @@ function CreatingView({ setlist }: { setlist: Setlist }) {
             id: '',
             visibility: 'public',
             url: '',
-            songs: songs.map(s => ({ id: '', name: s.name }))
+            songs: songs.map(s => ({ spotifyUri: '', name: s.name }))
         };
         setPlaylist(newPlaylist);
 
@@ -598,12 +618,12 @@ function CreatingView({ setlist }: { setlist: Setlist }) {
 
                     if (response.ok) {
                         const data = await response.json();
-                        song.id = data.id;
+                        song.spotifyUri = data.spotifyUri;
                     } else {
-                        song.id = 'fail';
+                        song.spotifyUri = 'fail';
                     }
                 } catch (error) {
-                    song.id = 'fail';
+                    song.spotifyUri = 'fail';
                 }
 
                 setSearchProgress(i + 1);
@@ -618,33 +638,36 @@ function CreatingView({ setlist }: { setlist: Setlist }) {
 
 
     return (
-        <div className="min-h-screen flex flex-col items-center justify-center px-6">
-            <div className="text-center max-w-sm">
-                <div className="w-20 h-20 rounded-full bg-primary/10 border border-primary/20 flex items-center justify-center mx-auto mb-6">
-                    <Loader2 size={32} className="text-primary animate-spin" />
-                </div>
-                <h2 className="font-display font-bold text-3xl text-foreground mb-2">Building your playlist…</h2>
-                <p className="text-muted-foreground text-sm">
-                    Searching Spotify for {playlist?.songs.length ?? 0} tracks from{" "}
-                    <span className="text-foreground font-medium">{setlist.artist.name}</span> at{" "}
-                    {setlist.venue.name}
-                    {searchProgress > 0 && ` (${searchProgress}/${playlist?.songs.length ?? 0})`}
-                </p>
-                <div className="mt-8 space-y-2">
-                    {playlist?.songs.map((s, i) => (
-                        <div
-                            key={i}
-                            className="flex items-center gap-3 px-4 py-2.5 bg-card border border-border rounded-lg text-sm"
-                            style={{ animationDelay: `${i * 150}ms` }}
-                        >
-                            <Loader2 size={12} className="text-primary animate-spin shrink-0" />
-                            <span className="text-muted-foreground font-mono text-xs truncate">{s.name}</span>
-                        </div>
+        <div className= "min-h-screen flex flex-col items-center justify-center px-6" >
+        <div className="text-center max-w-sm" >
+            <div className="w-20 h-20 rounded-full bg-primary/10 border border-primary/20 flex items-center justify-center mx-auto mb-6" >
+                <Loader2 size={ 32 } className = "text-primary animate-spin" />
+                    </div>
+                    < h2 className = "font-display font-bold text-3xl text-foreground mb-2" > Building your playlist…</h2>
+                        < p className = "text-muted-foreground text-sm" >
+                            Searching Spotify for { playlist?.songs.length ?? 0 } tracks from{ " " }
+    <span className="text-foreground font-medium" > { setlist.artist.name } </span> at{" "}
+    { setlist.venue.name }
+    { searchProgress > 0 && ` (${searchProgress}/${playlist?.songs.length ?? 0})` }
+    </p>
+        < div className = "mt-8 space-y-2" >
+        {
+            playlist?.songs.map((s, i) => (
+                <div
+                            key= { i }
+                            className = "flex items-center gap-3 px-4 py-2.5 bg-card border border-border rounded-lg text-sm"
+                            style = {{ animationDelay: `${i * 150}ms` }}
+            >
+        { s.spotifyUri === '' && <Loader2 size={ 12 } className = "text-primary animate-spin shrink-0" />}
+        { s.spotifyUri === 'fail' && <X size={ 12 } className = "text-destructive" />}
+        { s.spotifyUri !== '' && s.spotifyUri !== 'fail' && <Check   size={ 12 } className = "text-primary" />}
+<span className="text-muted-foreground font-mono text-xs truncate" > { s.name } </span>
+    </div>
                     ))}
 {/*                     <p className="text-xs font-mono text-muted-foreground pt-1">+ {songs.length - 5} more…</p>
- */}                </div>
-            </div>
-        </div>
+ */} </div>
+    </div>
+    </div>
     );
 }
 
@@ -663,54 +686,56 @@ function DoneView({
     const VisIcon = visOption.Icon;
 
     return (
-        <div className="min-h-screen flex flex-col items-center justify-center px-6">
-            <div className="text-center max-w-md">
-                <div className="w-20 h-20 rounded-full bg-primary/10 border border-primary/30 flex items-center justify-center mx-auto mb-6">
-                    <Check size={32} className="text-primary" />
-                </div>
-                <h2 className="font-display font-bold text-4xl text-foreground mb-2">Playlist created!</h2>
-                <p className="text-muted-foreground text-sm mb-8">
-                    {songs.length} tracks are now waiting for you in Spotify.
+        <div className= "min-h-screen flex flex-col items-center justify-center px-6" >
+        <div className="text-center max-w-md" >
+            <div className="w-20 h-20 rounded-full bg-primary/10 border border-primary/30 flex items-center justify-center mx-auto mb-6" >
+                <Check size={ 32 } className = "text-primary" />
+                    </div>
+                    < h2 className = "font-display font-bold text-4xl text-foreground mb-2" > Playlist created! </h2>
+                        < p className = "text-muted-foreground text-sm mb-8" >
+                        { songs.length } tracks are now waiting for you in Spotify.
                 </p>
 
-                <div className="bg-card border border-primary/20 rounded-xl p-5 text-left mb-6">
-                    <div className="flex items-start gap-4">
-                        <div className="w-14 h-14 rounded-lg bg-primary/10 flex items-center justify-center shrink-0">
-                            <Music size={22} className="text-primary" />
-                        </div>
-                        <div className="flex-1 min-w-0">
-                            <p className="font-semibold text-foreground truncate">{playlistName}</p>
-                            <div className="flex items-center gap-2 mt-0.5">
-                                <p className="text-xs text-muted-foreground font-mono">{songs.length} tracks · {setlist.artist.name}</p>
-                                <span className="inline-flex items-center gap-1 px-1.5 py-0.5 rounded-full bg-muted text-xs font-mono text-muted-foreground border border-border">
-                                    <VisIcon size={9} />
-                                    {visOption.label}
-                                </span>
-                            </div>
-                            <div className="flex flex-wrap gap-1 mt-2">
-                                {songs.slice(0, 3).map((s, i) => (
-                                    <span key={i} className="text-xs px-1.5 py-0.5 bg-muted rounded text-muted-foreground font-mono">{s.name}</span>
-                                ))}
-                                <span className="text-xs px-1.5 py-0.5 text-muted-foreground font-mono">…</span>
-                            </div>
-                        </div>
-                    </div>
+                            < div className = "bg-card border border-primary/20 rounded-xl p-5 text-left mb-6" >
+                                <div className="flex items-start gap-4" >
+                                    <div className="w-14 h-14 rounded-lg bg-primary/10 flex items-center justify-center shrink-0" >
+                                        <Music size={ 22 } className = "text-primary" />
+                                            </div>
+                                            < div className = "flex-1 min-w-0" >
+                                                <p className="font-semibold text-foreground truncate" > { playlistName } </p>
+                                                    < div className = "flex items-center gap-2 mt-0.5" >
+                                                        <p className="text-xs text-muted-foreground font-mono" > { songs.length } tracks · { setlist.artist.name } </p>
+                                                            < span className = "inline-flex items-center gap-1 px-1.5 py-0.5 rounded-full bg-muted text-xs font-mono text-muted-foreground border border-border" >
+                                                                <VisIcon size={ 9 } />
+    { visOption.label }
+    </span>
+        </div>
+        < div className = "flex flex-wrap gap-1 mt-2" >
+        {
+            songs.slice(0, 3).map((s, i) => (
+                <span key= { i } className = "text-xs px-1.5 py-0.5 bg-muted rounded text-muted-foreground font-mono" > { s.name } </span>
+            ))
+        }
+            < span className = "text-xs px-1.5 py-0.5 text-muted-foreground font-mono" >…</span>
+                </div>
+                </div>
+                </div>
                 </div>
 
-                <div className="flex gap-3 justify-center">
-                    <button className="flex items-center gap-2 px-6 py-3 bg-primary text-primary-foreground rounded-xl font-semibold text-sm hover:bg-primary/90 transition-all">
-                        <ExternalLink size={15} />
-                        Open in Spotify
-                    </button>
-                    <button
-                        onClick={onReset}
-                        className="flex items-center gap-2 px-6 py-3 bg-secondary text-secondary-foreground rounded-xl font-semibold text-sm hover:bg-secondary/80 transition-all"
-                    >
-                        Find another setlist
-                    </button>
-                </div>
+                < div className = "flex gap-3 justify-center" >
+                    <button className="flex items-center gap-2 px-6 py-3 bg-primary text-primary-foreground rounded-xl font-semibold text-sm hover:bg-primary/90 transition-all" >
+                        <ExternalLink size={ 15 } />
+    Open in Spotify
+        </button>
+        < button
+    onClick = { onReset }
+    className = "flex items-center gap-2 px-6 py-3 bg-secondary text-secondary-foreground rounded-xl font-semibold text-sm hover:bg-secondary/80 transition-all"
+        >
+        Find another setlist
+            </button>
             </div>
-        </div>
+            </div>
+            </div>
     );
 }
 
@@ -798,10 +823,11 @@ export default function App() {
 
     return (
         <div
-            className="min-h-screen bg-background text-foreground"
-            style={{ fontFamily: "'DM Sans', sans-serif" }}
+            className= "min-h-screen bg-background text-foreground"
+    style = {{ fontFamily: "'DM Sans', sans-serif" }
+}
         >
-            <style>{`
+    <style>{`
         .font-display { font-family: 'Barlow Condensed', sans-serif; }
         .font-mono { font-family: 'DM Mono', monospace; }
         ::-webkit-scrollbar { width: 4px; }
@@ -809,37 +835,45 @@ export default function App() {
         ::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.1); border-radius: 2px; }
       `}</style>
 
-            {view === "search" && (
-                <HeroSearch
-                    query={query}
-                    setQuery={setQuery}
-                    onSearch={handleSearch}
-                    onPasteUrl={handlePasteUrl}
-                    loading={loading}
-                />
+{
+    view === "search" && (
+        <HeroSearch
+                    query={ query }
+    setQuery = { setQuery }
+    onSearch = { handleSearch }
+    onPasteUrl = { handlePasteUrl }
+    loading = { loading }
+        />
+            )
+}
+{
+    view === "results" && (
+        <ResultsView
+                    query={ query }
+    setlists = { results }
+    onSelect = { handleSelect }
+    onBack = { handleReset }
+    loadNextPage = { loadNextPage }
+    loadingMore = { loadingMore }
+        />
+            )
+}
+{
+    view === "setlist" && selected && (
+        <SetlistView
+                    setlist={ selected }
+    onBack = {() => setView("results")
+}
+onCreatePlaylist = { handleCreatePlaylist }
+    />
             )}
-            {view === "results" && (
-                <ResultsView
-                    query={query}
-                    setlists={results}
-                    onSelect={handleSelect}
-                    onBack={handleReset}
-                    loadNextPage={loadNextPage}
-                    loadingMore={loadingMore}
-                />
-            )}
-            {view === "setlist" && selected && (
-                <SetlistView
-                    setlist={selected}
-                    onBack={() => setView("results")}
-                    onCreatePlaylist={handleCreatePlaylist}
-                />
-            )}
-            {view === "creating" && selected && <CreatingView setlist={selected} />}
-            {view === "done" && selected && (
-                <DoneView setlist={selected} visibility={visibility} onReset={handleReset} />
-            )}
+{ view === "creating" && selected && <CreatingView setlist={ selected } /> }
+{
+    view === "done" && selected && (
+        <DoneView setlist={ selected } visibility = { visibility } onReset = { handleReset } />
+            )
+}
 
-        </div>
+</div>
     );
 }

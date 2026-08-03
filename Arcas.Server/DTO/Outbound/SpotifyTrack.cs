@@ -2,6 +2,6 @@
 
 public class SpotifyTrack
 {
-    public string Id { get; set; }
+    public string SpotifyUri { get; set; }
     public string Name { get; set; }
 }

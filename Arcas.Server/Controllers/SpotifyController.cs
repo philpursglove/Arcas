@@ -74,14 +74,14 @@ public class SpotifyController : ControllerBase
         {
             return searchResult.Tracks.Items.Select(t => new DTO.Outbound.SpotifyTrack
             {
-                Id = t.Id,
+                SpotifyUri = t.SpotifyUri,
                 Name = t.Name
             }).FirstOrDefault(t => t.Name == trackName);
         }
 
         return new DTO.Outbound.SpotifyTrack
         {
-            Id = "fail",
+            SpotifyUri = "fail",
             Name = trackName
         };
     }
