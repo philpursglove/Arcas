@@ -63,7 +63,7 @@ public class SpotifyController : ControllerBase
     {
         var token = await GetSpotifyBearerToken();
         _httpClient.DefaultRequestHeaders.Authorization = new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", token);
-        var response = await _httpClient.GetAsync($"search?q=artist:{Uri.EscapeDataString(artistName)}&track:{Uri.EscapeDataString(trackName)}&type=track");
+        var response = await _httpClient.GetAsync($"search?q=artist:{Uri.EscapeDataString(artistName)}%20track:{Uri.EscapeDataString(trackName)}&type=track");
         if (!response.IsSuccessStatusCode)
         {
             throw new Exception($"Failed to search tracks: {response.ReasonPhrase}");
