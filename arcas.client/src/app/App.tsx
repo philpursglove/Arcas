@@ -487,7 +487,17 @@ function SetlistView({
     onCreatePlaylist: (visibility: PlaylistVisibility) => void;
 }) {
     const [visibility, setVisibility] = useState<PlaylistVisibility>("public");
-    const songs = setlist.songs;
+    const songs = setlist.songs.map((s,i) => {
+        if (s.name.indexOf(' / ') > 0)
+        {
+            const medleySongs = s.name.split(' / ');
+            return medleySongs;
+        }
+        else
+        {
+            return s;
+        }
+    });
 
     return (
         <div className= "min-h-screen flex flex-col" >
