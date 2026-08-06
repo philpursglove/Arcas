@@ -607,7 +607,24 @@ function CreatingView({ setlist }: { setlist: Setlist }) {
 
     useEffect(() => {
         // Initialize playlist immediately
-        const songs = setlist.songs;
+        let songs: Array<PlaylistSong> = [];
+        setlist.songs.map((s,i) => {
+            if (s.name.indexOf(' / ') > 0)
+            {
+                const medleySongs = s.name.split(' / ');
+                medleySongs.map((ms) => {
+                    if (ms.trim() !== '')
+                    {
+                        songs.push({spotifyUri: '', name: ms});
+                    }
+                });
+            }
+            else
+            {
+                songs.push({spotifyUri: '', name: s.name});
+            }
+        });
+        // const songs = setlist.songs;
         const newPlaylist: Playlist = {
             name: `${setlist.artist.name}, ${setlist.venue.name}, (${setlist.formattedDate})`,
             id: '',
