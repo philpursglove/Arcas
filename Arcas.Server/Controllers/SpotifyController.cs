@@ -76,7 +76,7 @@ public class SpotifyController : ControllerBase
             {
                 SpotifyUri = t.SpotifyUri,
                 Name = t.Name
-            }).FirstOrDefault(t => t.Name == trackName);
+            }).FirstOrDefault(t => t.Name.ToLowerInvariant() == trackName.ToLowerInvariant());
         }
 
         return new DTO.Outbound.SpotifyTrack
