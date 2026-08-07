@@ -102,16 +102,18 @@ namespace Arcas.Server.Controllers
                 }
                 var content = await response.Content.ReadAsStringAsync();
                 var setlistResult = JsonSerializer.Deserialize<DTO.Inbound.Setlist>(content);
-                var setlist = new DTO.Outbound.Setlist();
-                setlist.Id = setlistResult.Id;
-                setlist.eventDate = DateOnly.FromDateTime(DateTime.Parse(setlistResult.EventDate));
-                setlist.Venue = new DTO.Outbound.Venue() { Name = setlistResult.Venue?.Name, City = setlistResult.Venue?.City?.Name, Country = setlistResult.Venue?.City?.Country?.Name };
-                setlist.Artist = new Artist() { Name = setlistResult.Artist?.Name, Id = setlistResult.Artist?.Id };
-                setlist.Tour = setlistResult.Tour?.Name;
-                setlist.Songs = setlistResult.Sets?.Setslist?.SelectMany(set => set.Songs?.Where(s => !s.Tape)
-                    .Select(song => new DTO.Outbound.Song() { Name = song.Name, Cover = song.Cover, CoverArtist = song.CoverArtist != null ? new DTO.Outbound.Artist() { Name = song.CoverArtist.Name, Id = song.CoverArtist.Id } : null }) ?? new List<DTO.Outbound.Song>()).Where(s => !string.IsNullOrWhiteSpace(s.Name)).ToList() ?? new List<DTO.Outbound.Song>();
-                setlist.formattedDate = DateTime.Parse(setlistResult.EventDate).ToString("d MMM yyyy");
-                setlist.url = setlistResult.SetlistUri.ToString();
+                var setlist = new DTO.Outbound.Setlist
+                {
+                    Id = setlistResult.Id,
+                    eventDate = DateOnly.FromDateTime(DateTime.Parse(setlistResult.EventDate)),
+                    Venue = new DTO.Outbound.Venue() { Name = setlistResult.Venue?.Name, City = setlistResult.Venue?.City?.Name, Country = setlistResult.Venue?.City?.Country?.Name },
+                    Artist = new Artist() { Name = setlistResult.Artist?.Name, Id = setlistResult.Artist?.Id },
+                    Tour = setlistResult.Tour?.Name,
+                    Songs = setlistResult.Sets?.Setslist?.SelectMany(set => set.Songs?.Where(s => !s.Tape)
+                            .Select(song => new DTO.Outbound.Song() { Name = song.Name, Cover = song.Cover, CoverArtist = song.CoverArtist != null ? new DTO.Outbound.Artist() { Name = song.CoverArtist.Name, Id = song.CoverArtist.Id } : null }) ?? new List<DTO.Outbound.Song>()).Where(s => !string.IsNullOrWhiteSpace(s.Name)).ToList() ?? new List<DTO.Outbound.Song>(),
+                    formattedDate = DateTime.Parse(setlistResult.EventDate).ToString("d MMM yyyy"),
+                    url = setlistResult.SetlistUri.ToString()
+                };
                 return setlist;
             }, new HybridCacheEntryOptions() { Expiration = TimeSpan.FromMinutes(60) });
 
