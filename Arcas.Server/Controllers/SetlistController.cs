@@ -62,7 +62,12 @@ namespace Arcas.Server.Controllers
                             {
                                 Id = s.Id,
                                 eventDate = DateOnly.FromDateTime(DateTime.Parse(s.EventDate)),
-                                Venue = new DTO.Outbound.Venue() { Name = s.Venue?.Name, City = s.Venue?.City?.Name, Country = s.Venue?.City?.Country?.Name },
+                                Venue = new DTO.Outbound.Venue()
+                                {
+                                    Name = s.Venue?.Name,
+                                    City = s.Venue?.City?.Name,
+                                    Country = s.Venue?.City?.Country?.Name
+                                },
                                 Artist = new Artist() { Name = artist.Name, Id = artist.Id },
                                 Tour = s.Tour?.Name,
                                 Songs = s.Sets?.Setslist?.SelectMany(set => set.Songs?.Where(s => !s.Tape)
@@ -106,11 +111,21 @@ namespace Arcas.Server.Controllers
                 {
                     Id = setlistResult.Id,
                     eventDate = DateOnly.FromDateTime(DateTime.Parse(setlistResult.EventDate)),
-                    Venue = new DTO.Outbound.Venue() { Name = setlistResult.Venue?.Name, City = setlistResult.Venue?.City?.Name, Country = setlistResult.Venue?.City?.Country?.Name },
+                    Venue = new DTO.Outbound.Venue()
+                    {
+                        Name = setlistResult.Venue?.Name,
+                        City = setlistResult.Venue?.City?.Name,
+                        Country = setlistResult.Venue?.City?.Country?.Name
+                    },
                     Artist = new Artist() { Name = setlistResult.Artist?.Name, Id = setlistResult.Artist?.Id },
                     Tour = setlistResult.Tour?.Name,
                     Songs = setlistResult.Sets?.Setslist?.SelectMany(set => set.Songs?.Where(s => !s.Tape)
-                            .Select(song => new DTO.Outbound.Song() { Name = song.Name, Cover = song.Cover, CoverArtist = song.CoverArtist != null ? new DTO.Outbound.Artist() { Name = song.CoverArtist.Name, Id = song.CoverArtist.Id } : null }) ?? new List<DTO.Outbound.Song>()).Where(s => !string.IsNullOrWhiteSpace(s.Name)).ToList() ?? new List<DTO.Outbound.Song>(),
+                            .Select(song => new DTO.Outbound.Song()
+                            {
+                                Name = song.Name,
+                                Cover = song.Cover,
+                                CoverArtist = song.CoverArtist != null ? new DTO.Outbound.Artist() { Name = song.CoverArtist.Name, Id = song.CoverArtist.Id } : null
+                            }) ?? new List<DTO.Outbound.Song>()).Where(s => !string.IsNullOrWhiteSpace(s.Name)).ToList() ?? new List<DTO.Outbound.Song>(),
                     formattedDate = DateTime.Parse(setlistResult.EventDate).ToString("d MMM yyyy"),
                     url = setlistResult.SetlistUri.ToString()
                 };
@@ -139,7 +154,12 @@ namespace Arcas.Server.Controllers
             {
                 Id = s.Id,
                 eventDate = DateOnly.FromDateTime(DateTime.Parse(s.EventDate)),
-                Venue = new DTO.Outbound.Venue() { Name = s.Venue?.Name, City = s.Venue?.City?.Name, Country = s.Venue?.City?.Country?.Name },
+                Venue = new DTO.Outbound.Venue()
+                {
+                    Name = s.Venue?.Name,
+                    City = s.Venue?.City?.Name,
+                    Country = s.Venue?.City?.Country?.Name
+                },
                 Artist = new Artist() { Name = s.Artist?.Name, Id = s.Artist?.Id },
                 Tour = s.Tour?.Name,
                 Songs = s.Sets?.Setslist?.SelectMany(set => set.Songs?.Where(s => !s.Tape)
