@@ -1,9 +1,6 @@
-﻿using Arcas.Server.DTO.Inbound;
-using Arcas.Server.DTO.Outbound;
-using Arcas.Server.Services;
+﻿using Arcas.Server.Services;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Options;
-using System.Text.Json;
 
 namespace Arcas.Server.Controllers
 {
@@ -33,51 +30,14 @@ namespace Arcas.Server.Controllers
             {
                 return new BadRequestObjectResult("Search text cannot be empty.");
             }
-            var setlistApiUrl = $"search/artists?artistName={Uri.EscapeDataString(searchText)}&sort=relevance";
-            var response = await _httpClient.GetAsync(setlistApiUrl);
-            if (!response.IsSuccessStatusCode)
+
+            var setlists = await _service.ArtistSearch(searchText);
+            if (setlists != null && setlists.Any())
             {
-                return new StatusCodeResult((int)response.StatusCode);
-            }
-            var content = await response.Content.ReadAsStringAsync();
-            var artistSearchResult = JsonSerializer.Deserialize<SetlistArtistSearchResult>(content);
-
-            if (artistSearchResult.Artists.Any(a => a.Name.ToLowerInvariant() == searchText.ToLowerInvariant()))
-            {
-                // search for setlists using the id
-                var artist = artistSearchResult.Artists.First(a => a.Name.ToLowerInvariant() == searchText.ToLowerInvariant());
-
-                var setlistsApiUrl = $"search/setlists?artistMbid={Uri.EscapeDataString(artist.Id)}";
-                response = await _httpClient.GetAsync(setlistsApiUrl);
-                if (!response.IsSuccessStatusCode)
-                {
-                    return new StatusCodeResult((int)response.StatusCode);
-                }
-                var setlistsContent = await response.Content.ReadAsStringAsync();
-                var setlistsResult = JsonSerializer.Deserialize<SetlistSearchResult>(setlistsContent);
-
-                var setlists = setlistsResult.Setlists.Select(s => new DTO.Outbound.Setlist()
-                {
-                    Id = s.Id,
-                    eventDate = DateOnly.FromDateTime(DateTime.Parse(s.EventDate)),
-                    Venue = new DTO.Outbound.Venue() { Name = s.Venue?.Name, City = s.Venue?.City?.Name, Country = s.Venue?.City?.Country?.Name },
-                    Artist = new Artist() { Name = artist.Name, Id = artist.Id },
-                    Tour = s.Tour?.Name,
-                    Songs = s.Sets?.Setslist?.SelectMany(set => set.Songs?.Where(s => !s.Tape)
-                        .Select(song => new DTO.Outbound.Song() { Name = song.Name, Cover = song.Cover, CoverArtist = song.CoverArtist != null ? new DTO.Outbound.Artist() { Name = song.CoverArtist.Name, Id = song.CoverArtist.Id } : null }) ?? new List<DTO.Outbound.Song>()).Where(s => !string.IsNullOrWhiteSpace(s.Name)).ToList() ?? new List<DTO.Outbound.Song>(),
-                    formattedDate = DateTime.Parse(s.EventDate).ToString("d MMM yyyy"),
-                    url = s.SetlistUri.ToString()
-                }).ToList();
-
-                setlists = setlists.Where(s => s.eventDate <= DateOnly.FromDateTime(DateTime.Today)
-                                               && s.Songs.Any()).ToList();
-
                 return new OkObjectResult(setlists);
             }
-            else
-            {
-                return new NotFoundObjectResult($"No artist found with the name '{searchText}'.");
-            }
+
+            return new NotFoundObjectResult($"No artist found with the name '{searchText}'.");
         }
 
         [HttpGet("getsetlist")]
@@ -104,28 +64,9 @@ namespace Arcas.Server.Controllers
             {
                 return new BadRequestObjectResult("Artist ID cannot be empty.");
             }
-            var setlistsApiUrl = $"search/setlists?artistMbid={Uri.EscapeDataString(artistId)}&p={pageNumber}";
-            var response = await _httpClient.GetAsync(setlistsApiUrl);
-            if (!response.IsSuccessStatusCode)
-            {
-                return new StatusCodeResult((int)response.StatusCode);
-            }
-            var setlistsContent = await response.Content.ReadAsStringAsync();
-            var setlistsResult = JsonSerializer.Deserialize<SetlistSearchResult>(setlistsContent);
-            var setlists = setlistsResult.Setlists.Select(s => new DTO.Outbound.Setlist()
-            {
-                Id = s.Id,
-                eventDate = DateOnly.FromDateTime(DateTime.Parse(s.EventDate)),
-                Venue = new DTO.Outbound.Venue() { Name = s.Venue?.Name, City = s.Venue?.City?.Name, Country = s.Venue?.City?.Country?.Name },
-                Artist = new Artist() { Name = s.Artist?.Name, Id = s.Artist?.Id },
-                Tour = s.Tour?.Name,
-                Songs = s.Sets?.Setslist?.SelectMany(set => set.Songs?.Where(s => !s.Tape)
-                    .Select(song => new DTO.Outbound.Song() { Name = song.Name, Cover = song.Cover, CoverArtist = song.CoverArtist != null ? new DTO.Outbound.Artist() { Name = song.CoverArtist.Name, Id = song.CoverArtist.Id } : null }) ?? new List<DTO.Outbound.Song>()).Where(s => !string.IsNullOrWhiteSpace(s.Name)).ToList() ?? new List<DTO.Outbound.Song>(),
-                formattedDate = DateTime.Parse(s.EventDate).ToString("d MMM yyyy"),
-                url = s.SetlistUri.ToString()
-            }).ToList();
-            setlists = setlists.Where(s => s.eventDate <= DateOnly.FromDateTime(DateTime.Today)
-                                           && s.Songs.Any()).ToList();
+
+            var setlists = await _service.GetArtistSetlistsPage(artistId, pageNumber);
+
             return new OkObjectResult(setlists);
         }
 
