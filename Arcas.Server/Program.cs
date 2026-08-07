@@ -17,6 +17,7 @@ builder.Services.AddMemoryCache();
 builder.Services.Configure<ApiKeys>(builder.Configuration.GetSection("ApiKeys"));
 
 builder.Services.AddScoped<SetlistService>();
+builder.Services.AddScoped<SpotifyService>();
 
 var app = builder.Build();
 
