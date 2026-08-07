@@ -1,4 +1,5 @@
 using Arcas.Server;
+using Arcas.Server.Services;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -14,6 +15,8 @@ builder.Services.AddHttpClient();
 builder.Services.AddMemoryCache();
 
 builder.Services.Configure<ApiKeys>(builder.Configuration.GetSection("ApiKeys"));
+
+builder.Services.AddScoped<SetlistService>();
 
 var app = builder.Build();
 
