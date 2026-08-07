@@ -40,6 +40,7 @@ interface Playlist {
 interface PlaylistSong {
     name: string;
     spotifyUri: string;
+    coverArtist?: string | null;
 }
 
 type AppView = "search" | "results" | "setlist" | "creating" | "done";
@@ -621,7 +622,12 @@ function CreatingView({ setlist }: { setlist: Setlist }) {
             }
             else
             {
-                songs.push({spotifyUri: '', name: s.name});
+                if (s.cover) {
+                    songs.push({ spotifyUri: '', name: s.name, coverArtist: s.coverArtist?.name });
+                }
+                else {
+                    songs.push({ spotifyUri: '', name: s.name });
+                }
             }
         });
         // const songs = setlist.songs;
@@ -640,7 +646,7 @@ function CreatingView({ setlist }: { setlist: Setlist }) {
                 const song = newPlaylist.songs[i];
                 try {
                     const response = await fetch(
-                        `Spotify/searchtrack?trackName=${encodeURIComponent(song.name)}&artistName=${encodeURIComponent(setlist.artist.name)}`
+                        `Spotify/searchtrack?trackName=${encodeURIComponent(song.name)}&artistName=${encodeURIComponent(song.coverArtist ?? setlist.artist.name)}`
                     );
 
                     if (response.ok) {
