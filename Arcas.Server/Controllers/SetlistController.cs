@@ -1,6 +1,5 @@
 ﻿using Arcas.Server.Services;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.Extensions.Options;
 
 namespace Arcas.Server.Controllers
 {
@@ -8,19 +7,11 @@ namespace Arcas.Server.Controllers
     [Route("[controller]")]
     public class SetlistController : ControllerBase
     {
-        private readonly ApiKeys _apiKeys;
-        private readonly HttpClient _httpClient;
         private readonly SetlistService _service;
 
-        public SetlistController(IOptions<ApiKeys> options, HttpClient httpClient, SetlistService service)
+        public SetlistController(SetlistService service)
         {
-            _apiKeys = options.Value;
-            _httpClient = httpClient;
             _service = service;
-
-            _httpClient.BaseAddress = new Uri("https://api.setlist.fm/rest/1.0/");
-            _httpClient.DefaultRequestHeaders.Add("x-api-key", _apiKeys.SetlistFmApiKey);
-            _httpClient.DefaultRequestHeaders.Add("Accept", "application/json");
         }
 
         [HttpGet("artistsearch")]
