@@ -138,7 +138,7 @@ function allSongs(setlist: Setlist): Song[] {
 
 function Pill({ children }: { children: React.ReactNode }) {
     return (
-        <span className= "inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-mono bg-muted text-muted-foreground border border-border" >
+        <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-mono bg-muted text-muted-foreground border border-border" >
         { children }
         </span>
     );
@@ -608,7 +608,7 @@ function CreatingView({ setlist }: { setlist: Setlist }) {
 
     useEffect(() => {
         // Initialize playlist immediately
-        let songs: Array<PlaylistSong> = [];
+        let playlistSongs: Array<PlaylistSong> = [];
         setlist.songs.map((s,i) => {
             if (s.name.indexOf(' / ') > 0)
             {
@@ -616,17 +616,17 @@ function CreatingView({ setlist }: { setlist: Setlist }) {
                 medleySongs.map((ms) => {
                     if (ms.trim() !== '')
                     {
-                        songs.push({spotifyUri: '', name: ms});
+                        playlistSongs.push({spotifyUri: '', name: ms});
                     }
                 });
             }
             else
             {
                 if (s.cover) {
-                    songs.push({ spotifyUri: '', name: s.name, coverArtist: s.coverArtist?.name });
+                    playlistSongs.push({ spotifyUri: '', name: s.name, coverArtist: s.coverArtist?.name });
                 }
                 else {
-                    songs.push({ spotifyUri: '', name: s.name });
+                    playlistSongs.push({ spotifyUri: '', name: s.name });
                 }
             }
         });
@@ -636,7 +636,7 @@ function CreatingView({ setlist }: { setlist: Setlist }) {
             id: '',
             visibility: 'public',
             url: '',
-            songs: songs.map(s => ({ spotifyUri: '', name: s.name }))
+            songs: playlistSongs
         };
         setPlaylist(newPlaylist);
 
@@ -658,6 +658,8 @@ function CreatingView({ setlist }: { setlist: Setlist }) {
                 } catch (error) {
                     song.spotifyUri = 'fail';
                 }
+
+                console.log(`Song ${song.name} search result: ${song.spotifyUri}`);
 
                 setSearchProgress(i + 1);
                 // Update playlist state to trigger UI rerender
@@ -691,9 +693,9 @@ function CreatingView({ setlist }: { setlist: Setlist }) {
                             className = "flex items-center gap-3 px-4 py-2.5 bg-card border border-border rounded-lg text-sm"
                             style = {{ animationDelay: `${i * 150}ms` }}
             >
-        { s.spotifyUri === '' && <Loader2 size={ 12 } className = "text-primary animate-spin shrink-0" />}
-        { s.spotifyUri === 'fail' && <X size={ 12 } className = "text-destructive" />}
-        { s.spotifyUri !== '' && s.spotifyUri !== 'fail' && <Check   size={ 12 } className = "text-primary" />}
+                    { s.spotifyUri === '' && <Loader2 size={ 12 } className = "text-primary animate-spin shrink-0" />}
+                    { s.spotifyUri === 'fail' && <X size={ 12 } className = "text-destructive" />}
+                    { s.spotifyUri !== '' && s.spotifyUri !== 'fail' && <Check   size={ 12 } className = "text-primary" />}
 <span className="text-muted-foreground font-mono text-xs truncate" > { s.name } </span>
     </div>
                     ))}
