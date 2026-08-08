@@ -24,6 +24,12 @@ public class SpotifyTrack
 
     [JsonPropertyName("artists")]
     public SpotifyArtist[] Artists { get; set; }
+
+    [JsonPropertyName("is_playable")]
+    public bool Playable { get; set; }
+
+    [JsonPropertyName("is_local")]
+    public bool Local { get; set; }
 }
 
 public class SpotifyArtist
