@@ -66,11 +66,11 @@ namespace Arcas.Server.Services
             var searchResult = JsonSerializer.Deserialize<SpotifyTrackSearchResult>(content);
             if (searchResult.Tracks.Items.Any())
             {
-                return searchResult.Tracks.Items.Select(t => new DTO.Outbound.SpotifyTrack
+                return searchResult.Tracks.Items.Where(t => t.Playable && !t.Local).Select(t => new DTO.Outbound.SpotifyTrack
                 {
                     SpotifyUri = t.SpotifyUri,
                     Name = t.Name
-                }).FirstOrDefault(t => t.Name.ToLowerInvariant() == trackName.ToLowerInvariant());
+                }).FirstOrDefault(t => t.Name.ToLowerInvariant().StartsWith(trackName.ToLowerInvariant()));
             }
 
             return new DTO.Outbound.SpotifyTrack
