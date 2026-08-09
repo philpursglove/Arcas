@@ -45,6 +45,11 @@ namespace Arcas.Server.DTO.Inbound
 
         [JsonPropertyName("artist")]
         public SetlistArtist Artist { get; set; }
+
+        [JsonPropertyName("lastUpdated")]
+        public string LastUpdated { get; set; }
+
+        public DateTime LastUpdatedDateTime { get => DateTime.Parse(LastUpdated); private set { } }
     }
 
     internal class Tour
