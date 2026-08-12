@@ -600,8 +600,12 @@ className = "flex items-center justify-center gap-2 px-6 py-3 bg-primary text-pr
     );
 }
 
-function CreatingView({ setlist }: { setlist: Setlist }) {
-    const [playlist, setPlaylist] = useState<Playlist | null>(null);
+function CreatingView({ setlist, playlist, setPlaylist, onComplete }: { 
+    setlist: Setlist;
+    playlist: Playlist | null;
+    setPlaylist: (playlist: Playlist) => void;
+    onComplete: () => void;
+}) {
     const [searchProgress, setSearchProgress] = useState(0);
 
     useEffect(() => {
@@ -666,6 +670,16 @@ function CreatingView({ setlist }: { setlist: Setlist }) {
 
         searchTracks();
     }, [setlist]);
+
+    // Check if all songs have been resolved and move to done view
+    useEffect(() => {
+        if (playlist && playlist.songs.length > 0) {
+            const allResolved = playlist.songs.every(song => song.spotifyUri !== '');
+            if (allResolved) {
+                onComplete();
+            }
+        }
+    }, [playlist, onComplete]);
 
     return (
         <div className= "min-h-screen flex flex-col items-center justify-center px-6" >
@@ -782,6 +796,7 @@ export default function App() {
     const [page, setPage] = useState<number | null>(null);
     const [artist, setArtist] = useState<Artist | null>(null);
     const [loadingMore, setLoadingMore] = useState(false);
+    const [playlist, setPlaylist] = useState<Playlist | null>(null);
 
     async function handleSearch() {
         if (!query.trim()) return;
@@ -897,13 +912,15 @@ export default function App() {
 onCreatePlaylist = { handleCreatePlaylist }
     />
             )}
-{ view === "creating" && selected && <CreatingView setlist={ selected } /> }
+{ view === "creating" && selected && (<CreatingView setlist={selected} playlist={playlist} setPlaylist={setPlaylist} onComplete={() => setView("done")} />) }
 {
-    view === "done" && selected && (
-        <DoneView playlist={ selected } visibility = { visibility } onReset = { handleReset } />
+    view === "done" && playlist && (
+        <DoneView playlist={playlist} visibility = { visibility } onReset = { handleReset } />
             )
 }
 
 </div>
     );
 }
+
+
