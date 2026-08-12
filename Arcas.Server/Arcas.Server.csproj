@@ -24,4 +24,12 @@
     </ProjectReference>
   </ItemGroup>
 
+  <ItemGroup>
+    <EditorConfigFiles Remove="C:\dev\repos\Github\Arcas\Arcas.Server\.editorconfig" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Include="C:\dev\repos\Github\Arcas\Arcas.Server\.editorconfig" />
+  </ItemGroup>
+
 </Project>
