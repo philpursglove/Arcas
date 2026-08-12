@@ -21,4 +21,10 @@ public class SpotifyController : ControllerBase
     {
         return await _spotifyService.SearchTrack(artistName, trackName);
     }
+
+    [HttpGet("getclientid")]
+    public string GetClientId()
+    {
+        return _spotifyService.GetClientId();
+    }
 }

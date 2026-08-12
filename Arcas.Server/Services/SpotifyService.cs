@@ -10,9 +10,7 @@ namespace Arcas.Server.Services
         private readonly ApiKeys _apiKeys;
         private readonly HttpClient _httpClient;
         private readonly IMemoryCache _cache;
-
         private const string SpotifyBearerTokenCacheKey = "SpotifyBearerToken";
-
 
         public SpotifyService(IOptions<ApiKeys> options, HttpClient httpClient, IMemoryCache memoryCache)
         {
@@ -33,12 +31,13 @@ namespace Arcas.Server.Services
 
             var httpClient = new HttpClient();
 
-            var result = await httpClient.PostAsync("https://accounts.spotify.com/api/token", new FormUrlEncodedContent(new[]
-            {
-                new KeyValuePair<string, string>("grant_type", "client_credentials"),
-                new KeyValuePair<string, string>("client_id", _apiKeys.SpotifyClientId),
-                new KeyValuePair<string, string>("client_secret", _apiKeys.SpotifyClientSecret)
-            }));
+            var result = await httpClient.PostAsync("https://accounts.spotify.com/api/token",
+                new FormUrlEncodedContent(new[]
+                {
+                    new KeyValuePair<string, string>("grant_type", "client_credentials"),
+                    new KeyValuePair<string, string>("client_id", _apiKeys.SpotifyClientId),
+                    new KeyValuePair<string, string>("client_secret", _apiKeys.SpotifyClientSecret)
+                }));
 
             if (!result.IsSuccessStatusCode)
             {
@@ -56,29 +55,31 @@ namespace Arcas.Server.Services
         public async Task<DTO.Outbound.SpotifyTrack> SearchTrack(string artistName, string trackName)
         {
             var token = await GetSpotifyBearerToken();
-            _httpClient.DefaultRequestHeaders.Authorization = new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", token);
-            var response = await _httpClient.GetAsync($"search?q=artist:{Uri.EscapeDataString(artistName)}%20track:{Uri.EscapeDataString(trackName)}&type=track");
+            _httpClient.DefaultRequestHeaders.Authorization =
+                new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", token);
+            var response = await _httpClient.GetAsync(
+                $"search?q=artist:{Uri.EscapeDataString(artistName)}%20track:{Uri.EscapeDataString(trackName)}&type=track");
             if (!response.IsSuccessStatusCode)
             {
                 throw new Exception($"Failed to search tracks: {response.ReasonPhrase}");
             }
+
             var content = await response.Content.ReadAsStringAsync();
             var searchResult = JsonSerializer.Deserialize<SpotifyTrackSearchResult>(content);
             if (searchResult.Tracks.Items.Any())
             {
-                return searchResult.Tracks.Items.Where(t => t.Playable && !t.Local).Select(t => new DTO.Outbound.SpotifyTrack
-                {
-                    SpotifyUri = t.SpotifyUri,
-                    Name = t.Name
-                }).FirstOrDefault(t => t.Name.ToLowerInvariant().StartsWith(trackName.ToLowerInvariant()));
+                return searchResult.Tracks.Items.Where(t => t.Playable && !t.Local)
+                    .Select(t => new DTO.Outbound.SpotifyTrack { SpotifyUri = t.SpotifyUri, Name = t.Name })
+                    .FirstOrDefault(t => t.Name.ToLowerInvariant().StartsWith(trackName.ToLowerInvariant()));
             }
 
-            return new DTO.Outbound.SpotifyTrack
-            {
-                SpotifyUri = "fail",
-                Name = trackName
-            };
+            return new DTO.Outbound.SpotifyTrack { SpotifyUri = "fail", Name = trackName };
 
+        }
+
+        public string GetClientId()
+        {
+            return _apiKeys.SpotifyClientId;
         }
     }
 }
