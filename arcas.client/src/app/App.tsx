@@ -1,9 +1,11 @@
 import { useState, useEffect } from "react";
-import { Search, Music, ListMusic, ChevronRight, Check, Loader2, ExternalLink, Play, Plus, ArrowLeft, Disc3, Link, Globe, Lock, Users, X } from "lucide-react";
+import {
+    Search, Music, ListMusic, ChevronRight, Check, Loader2, ExternalLink, Play, Plus,
+    ArrowLeft, Disc3, Link, Globe, Lock, Users, X
+} from "lucide-react";
 
 type PlaylistVisibility = "public" | "private" | "collaborative";
 type CoverOption = "exclude" | "by-artist" | "by-original";
-type MedleyOption = "all" | "first" | "last";
 
 // ── Types ──────────────────────────────────────────────────────────────────
 
@@ -35,6 +37,7 @@ interface Playlist {
     visibility: PlaylistVisibility;
     url: string;
     songs: PlaylistSong[];
+    artistName: string;
 }
 
 interface PlaylistSong {
@@ -124,10 +127,6 @@ function parseSetlistId(url: string): string | null {
     // https://www.setlist.fm/setlist/radiohead/2024/glastonbury-festival-pilton-england-6bd15e5b.html
     const match = url.match(/setlist\.fm\/setlist\/[^/]+\/\d+\/[^/]+-([a-f0-9]+)\.html/i);
     return match ? match[1] : null;
-}
-
-function formatDate(date: Date): string {
-    return date.toDateString();
 }
 
 function allSongs(setlist: Setlist): Song[] {
@@ -259,7 +258,6 @@ function HeroSearch({
         setUrlError("");
         onPasteUrl(urlInput.trim());
     }
-
 
     return (
         <div className= "min-h-screen flex flex-col" >
@@ -636,7 +634,8 @@ function CreatingView({ setlist }: { setlist: Setlist }) {
             id: '',
             visibility: 'public',
             url: '',
-            songs: playlistSongs
+            songs: playlistSongs,
+            artistName: setlist.artist.name
         };
         setPlaylist(newPlaylist);
 
@@ -659,8 +658,6 @@ function CreatingView({ setlist }: { setlist: Setlist }) {
                     song.spotifyUri = 'fail';
                 }
 
-                console.log(`Song ${song.name} search result: ${song.spotifyUri}`);
-
                 setSearchProgress(i + 1);
                 // Update playlist state to trigger UI rerender
                 setPlaylist({ ...newPlaylist });
@@ -669,8 +666,6 @@ function CreatingView({ setlist }: { setlist: Setlist }) {
 
         searchTracks();
     }, [setlist]);
-
-
 
     return (
         <div className= "min-h-screen flex flex-col items-center justify-center px-6" >
@@ -707,16 +702,16 @@ function CreatingView({ setlist }: { setlist: Setlist }) {
 }
 
 function DoneView({
-    setlist,
+    playlist,
     visibility,
     onReset,
 }: {
-    setlist: Setlist;
+    playlist: Playlist;
     visibility: PlaylistVisibility;
     onReset: () => void;
 }) {
-    const songs = allSongs(setlist);
-    const playlistName = `${setlist.artist.name} @ ${setlist.venue.name} (${setlist.formattedDate})`;
+    const songs = playlist.songs;
+    const playlistName = playlist.name;
     const visOption = VISIBILITY_OPTIONS.find((o) => o.value === visibility)!;
     const VisIcon = visOption.Icon;
 
@@ -739,7 +734,7 @@ function DoneView({
                                             < div className = "flex-1 min-w-0" >
                                                 <p className="font-semibold text-foreground truncate" > { playlistName } </p>
                                                     < div className = "flex items-center gap-2 mt-0.5" >
-                                                        <p className="text-xs text-muted-foreground font-mono" > { songs.length } tracks · { setlist.artist.name } </p>
+                                                        <p className="text-xs text-muted-foreground font-mono" > { songs.length } tracks · { playlist.artistName } </p>
                                                             < span className = "inline-flex items-center gap-1 px-1.5 py-0.5 rounded-full bg-muted text-xs font-mono text-muted-foreground border border-border" >
                                                                 <VisIcon size={ 9 } />
     { visOption.label }
@@ -905,7 +900,7 @@ onCreatePlaylist = { handleCreatePlaylist }
 { view === "creating" && selected && <CreatingView setlist={ selected } /> }
 {
     view === "done" && selected && (
-        <DoneView setlist={ selected } visibility = { visibility } onReset = { handleReset } />
+        <DoneView playlist={ selected } visibility = { visibility } onReset = { handleReset } />
             )
 }
 
