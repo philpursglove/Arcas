@@ -3,7 +3,7 @@ import {
     Search, Music, ListMusic, ChevronRight, Check, Loader2, ExternalLink, Play, Plus,
     ArrowLeft, Disc3, Link, Globe, Lock, Users, X
 } from "lucide-react";
-import * as SpotifyHelper from "../../SpotifyHelper";
+import * as SpotifyHelper from "../SpotifyHelper";
 
 type PlaylistVisibility = "public" | "private" | "collaborative";
 type CoverOption = "exclude" | "by-artist" | "by-original";
