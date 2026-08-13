@@ -3,6 +3,7 @@ import {
     Search, Music, ListMusic, ChevronRight, Check, Loader2, ExternalLink, Play, Plus,
     ArrowLeft, Disc3, Link, Globe, Lock, Users, X
 } from "lucide-react";
+import * as SpotifyHelper from "../../SpotifyHelper";
 
 type PlaylistVisibility = "public" | "private" | "collaborative";
 type CoverOption = "exclude" | "by-artist" | "by-original";
@@ -600,13 +601,16 @@ className = "flex items-center justify-center gap-2 px-6 py-3 bg-primary text-pr
     );
 }
 
-function CreatingView({ setlist, playlist, setPlaylist, onComplete }: { 
+function CreatingView({ setlist, playlist, setPlaylist, onComplete, accessToken, visibility }: { 
     setlist: Setlist;
     playlist: Playlist | null;
     setPlaylist: (playlist: Playlist) => void;
     onComplete: () => void;
+    accessToken: string;
+    visibility: PlaylistVisibility;
 }) {
     const [searchProgress, setSearchProgress] = useState(0);
+    const [creatingPlaylist, setCreatingPlaylist] = useState(false);
 
     useEffect(() => {
         // Initialize playlist immediately
@@ -671,15 +675,53 @@ function CreatingView({ setlist, playlist, setPlaylist, onComplete }: {
         searchTracks();
     }, [setlist]);
 
-    // Check if all songs have been resolved and move to done view
+    // Check if all songs have been resolved and create the Spotify playlist
     useEffect(() => {
-        if (playlist && playlist.songs.length > 0) {
+        if (playlist && playlist.songs.length > 0 && !creatingPlaylist) {
             const allResolved = playlist.songs.every(song => song.spotifyUri !== '');
             if (allResolved) {
-                onComplete();
+                setCreatingPlaylist(true);
+                createSpotifyPlaylist();
             }
         }
-    }, [playlist, onComplete]);
+    }, [playlist, creatingPlaylist]);
+
+    async function createSpotifyPlaylist() {
+        if (!playlist) return;
+
+        try {
+            const trackUris = playlist.songs.map(song => song.spotifyUri);
+            const response = await fetch('Spotify/createplaylist', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    accessToken,
+                    name: playlist.name,
+                    description: `Setlist from ${setlist.venue.name}, ${setlist.venue.city} on ${setlist.formattedDate}`,
+                    isPublic: visibility === 'public',
+                    trackUris
+                })
+            });
+
+            if (response.ok) {
+                const data = await response.json();
+                // Update playlist with Spotify details
+                setPlaylist({
+                    ...playlist,
+                    id: data.id,
+                    url: data.url
+                });
+                onComplete();
+            } else {
+                console.error('Failed to create playlist');
+                // Still move forward but without the URL
+                onComplete();
+            }
+        } catch (error) {
+            console.error('Error creating playlist:', error);
+            onComplete();
+        }
+    }
 
     return (
         <div className= "min-h-screen flex flex-col items-center justify-center px-6" >
@@ -740,7 +782,7 @@ function DoneView({
                         { songs.length } tracks are now waiting for you in Spotify.
                 </p>
 
-                            < div className = "bg-card border border-primary/20 rounded-xl p-5 text-left mb-6" >
+                            <div className = "bg-card border border-primary/20 rounded-xl p-5 text-left mb-6" >
                                 <div className="flex items-start gap-4" >
                                     <div className="w-14 h-14 rounded-lg bg-primary/10 flex items-center justify-center shrink-0" >
                                         <Music size={ 22 } className = "text-primary" />
@@ -766,12 +808,27 @@ function DoneView({
                 </div>
                 </div>
 
-                < div className = "flex gap-3 justify-center" >
-                    <button className="flex items-center gap-2 px-6 py-3 bg-primary text-primary-foreground rounded-xl font-semibold text-sm hover:bg-primary/90 transition-all" >
-                        <ExternalLink size={ 15 } />
-    Open in Spotify
-        </button>
-        < button
+                <div className = "flex gap-3 justify-center" >
+                    {playlist.url ? (
+                        <a 
+                            href={playlist.url} 
+                            target="_blank" 
+                            rel="noreferrer"
+                            className="flex items-center gap-2 px-6 py-3 bg-primary text-primary-foreground rounded-xl font-semibold text-sm hover:bg-primary/90 transition-all"
+                        >
+                            <ExternalLink size={ 15 } />
+                            Open in Spotify
+                        </a>
+                    ) : (
+                        <button 
+                            disabled
+                            className="flex items-center gap-2 px-6 py-3 bg-muted text-muted-foreground rounded-xl font-semibold text-sm cursor-not-allowed"
+                        >
+                            <ExternalLink size={ 15 } />
+                            Playlist link unavailable
+                        </button>
+                    )}
+        <button
     onClick = { onReset }
     className = "flex items-center gap-2 px-6 py-3 bg-secondary text-secondary-foreground rounded-xl font-semibold text-sm hover:bg-secondary/80 transition-all"
         >
@@ -797,6 +854,54 @@ export default function App() {
     const [artist, setArtist] = useState<Artist | null>(null);
     const [loadingMore, setLoadingMore] = useState(false);
     const [playlist, setPlaylist] = useState<Playlist | null>(null);
+    const [spotifyAccessToken, setSpotifyAccessToken] = useState<string | null>(null);
+    const [spotifyClientId, setSpotifyClientId] = useState<string>("");
+
+    // Handle OAuth callback and load initial data
+    useEffect(() => {
+        // Check for existing token
+        const existingToken = SpotifyHelper.getSpotifyToken();
+        if (existingToken) {
+            setSpotifyAccessToken(existingToken);
+        }
+
+        // Handle OAuth callback
+        const callbackData = SpotifyHelper.parseCallbackUrl();
+        if (callbackData) {
+            const { code } = callbackData;
+            const codeVerifier = SpotifyHelper.getCodeVerifier();
+
+            if (codeVerifier) {
+                // Exchange code for token
+                exchangeCodeForToken(code, codeVerifier);
+            }
+
+            // Clean up URL
+            window.history.replaceState({}, document.title, window.location.pathname);
+        }
+
+        // Load Spotify client ID
+        SpotifyHelper.getSpotifyClientId().then(setSpotifyClientId);
+    }, []);
+
+    async function exchangeCodeForToken(code: string, codeVerifier: string) {
+        try {
+            const redirectUri = window.location.origin + window.location.pathname;
+            const response = await fetch('Spotify/exchangetoken', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ code, codeVerifier, redirectUri })
+            });
+
+            if (response.ok) {
+                const data = await response.json();
+                SpotifyHelper.saveSpotifyToken(data.access_token, data.expires_in, data.refresh_token);
+                setSpotifyAccessToken(data.access_token);
+            }
+        } catch (error) {
+            console.error('Failed to exchange token:', error);
+        }
+    }
 
     async function handleSearch() {
         if (!query.trim()) return;
@@ -856,6 +961,21 @@ export default function App() {
 
     async function handleCreatePlaylist(v: PlaylistVisibility) {
         setVisibility(v);
+
+        // Check if we have a valid Spotify access token
+        const token = SpotifyHelper.getSpotifyToken();
+
+        if (!token) {
+            // No valid token - redirect to Spotify auth
+            if (spotifyClientId) {
+                const redirectUri = window.location.origin + window.location.pathname;
+                await SpotifyHelper.redirectToSpotifyAuth(spotifyClientId, redirectUri);
+            }
+            return;
+        }
+
+        // Have valid token - proceed to creating view
+        setSpotifyAccessToken(token);
         setView("creating");
     }
 
@@ -870,6 +990,7 @@ export default function App() {
         <div
             className= "min-h-screen bg-background text-foreground"
     style = {{ fontFamily: "'DM Sans', sans-serif" }
+}   
 }
         >
     <style>{`
@@ -912,7 +1033,16 @@ export default function App() {
 onCreatePlaylist = { handleCreatePlaylist }
     />
             )}
-{ view === "creating" && selected && (<CreatingView setlist={selected} playlist={playlist} setPlaylist={setPlaylist} onComplete={() => setView("done")} />) }
+{ view === "creating" && selected && spotifyAccessToken && (
+    <CreatingView 
+        setlist={selected} 
+        playlist={playlist} 
+        setPlaylist={setPlaylist} 
+        onComplete={() => setView("done")} 
+        accessToken={spotifyAccessToken}
+        visibility={visibility}
+    />
+) }
 {
     view === "done" && playlist && (
         <DoneView playlist={playlist} visibility = { visibility } onReset = { handleReset } />

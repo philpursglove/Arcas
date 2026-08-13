@@ -81,5 +81,97 @@ namespace Arcas.Server.Services
         {
             return _apiKeys.SpotifyClientId;
         }
+
+        public async Task<SpotifyAccessTokenResult> ExchangeCodeForToken(string code, string codeVerifier, string redirectUri)
+        {
+            var httpClient = new HttpClient();
+
+            var result = await httpClient.PostAsync("https://accounts.spotify.com/api/token",
+                new FormUrlEncodedContent(new[]
+                {
+                    new KeyValuePair<string, string>("grant_type", "authorization_code"),
+                    new KeyValuePair<string, string>("code", code),
+                    new KeyValuePair<string, string>("redirect_uri", redirectUri),
+                    new KeyValuePair<string, string>("client_id", _apiKeys.SpotifyClientId),
+                    new KeyValuePair<string, string>("code_verifier", codeVerifier)
+                }));
+
+            if (!result.IsSuccessStatusCode)
+            {
+                var errorContent = await result.Content.ReadAsStringAsync();
+                throw new Exception($"Failed to exchange code for token: {result.ReasonPhrase}. Details: {errorContent}");
+            }
+
+            var content = await result.Content.ReadAsStringAsync();
+            var tokenResult = JsonSerializer.Deserialize<SpotifyAccessTokenResult>(content);
+
+            return tokenResult;
+        }
+
+        public async Task<object> CreatePlaylist(string accessToken, string name, string description, bool isPublic, List<string> trackUris)
+        {
+            var userHttpClient = new HttpClient();
+            userHttpClient.BaseAddress = new Uri("https://api.spotify.com/v1/");
+            userHttpClient.DefaultRequestHeaders.Authorization = 
+                new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", accessToken);
+
+            // Get current user's ID
+            var userResponse = await userHttpClient.GetAsync("me");
+            if (!userResponse.IsSuccessStatusCode)
+            {
+                throw new Exception($"Failed to get user profile: {userResponse.ReasonPhrase}");
+            }
+
+            var userContent = await userResponse.Content.ReadAsStringAsync();
+            var userJson = JsonSerializer.Deserialize<JsonElement>(userContent);
+            var userId = userJson.GetProperty("id").GetString();
+
+            // Create playlist
+            var createPlaylistBody = new
+            {
+                name = name,
+                description = description,
+                @public = isPublic
+            };
+
+            var createResponse = await userHttpClient.PostAsync(
+                $"users/{userId}/playlists",
+                new StringContent(JsonSerializer.Serialize(createPlaylistBody), System.Text.Encoding.UTF8, "application/json"));
+
+            if (!createResponse.IsSuccessStatusCode)
+            {
+                var errorContent = await createResponse.Content.ReadAsStringAsync();
+                throw new Exception($"Failed to create playlist: {createResponse.ReasonPhrase}. Details: {errorContent}");
+            }
+
+            var playlistContent = await createResponse.Content.ReadAsStringAsync();
+            var playlistJson = JsonSerializer.Deserialize<JsonElement>(playlistContent);
+            var playlistId = playlistJson.GetProperty("id").GetString();
+            var playlistUrl = playlistJson.GetProperty("external_urls").GetProperty("spotify").GetString();
+
+            // Add tracks to playlist (filter out failed tracks)
+            var validTrackUris = trackUris.Where(uri => uri != "fail").ToList();
+            if (validTrackUris.Any())
+            {
+                var addTracksBody = new { uris = validTrackUris };
+                var addTracksResponse = await userHttpClient.PostAsync(
+                    $"playlists/{playlistId}/tracks",
+                    new StringContent(JsonSerializer.Serialize(addTracksBody), System.Text.Encoding.UTF8, "application/json"));
+
+                if (!addTracksResponse.IsSuccessStatusCode)
+                {
+                    var errorContent = await addTracksResponse.Content.ReadAsStringAsync();
+                    throw new Exception($"Failed to add tracks to playlist: {addTracksResponse.ReasonPhrase}. Details: {errorContent}");
+                }
+            }
+
+            return new
+            {
+                id = playlistId,
+                url = playlistUrl,
+                name = name,
+                trackCount = validTrackUris.Count
+            };
+        }
     }
 }
