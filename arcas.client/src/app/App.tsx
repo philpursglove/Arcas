@@ -991,7 +991,7 @@ export default function App() {
             className= "min-h-screen bg-background text-foreground"
     style = {{ fontFamily: "'DM Sans', sans-serif" }
 }   
-}
+
         >
     <style>{`
         .font-display { font-family: 'Barlow Condensed', sans-serif; }
