@@ -20,6 +20,10 @@ namespace Arcas.Server.Services
 
             _httpClient.BaseAddress = new Uri("https://api.spotify.com/v1/");
             _httpClient.Timeout = TimeSpan.FromSeconds(30);
+
+            var token = GetSpotifyBearerToken().Result;
+            _httpClient.DefaultRequestHeaders.Authorization =
+                new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", token);
         }
 
         private async Task<string> GetSpotifyBearerToken()
@@ -54,9 +58,6 @@ namespace Arcas.Server.Services
 
         public async Task<DTO.Outbound.SpotifyTrack> SearchTrack(string artistName, string trackName)
         {
-            var token = await GetSpotifyBearerToken();
-            _httpClient.DefaultRequestHeaders.Authorization =
-                new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", token);
             var response = await _httpClient.GetAsync(
                 $"search?q=artist:{Uri.EscapeDataString(artistName)}%20track:{Uri.EscapeDataString(trackName)}&type=track");
             if (!response.IsSuccessStatusCode)
@@ -110,13 +111,8 @@ namespace Arcas.Server.Services
 
         public async Task<object> CreatePlaylist(string accessToken, string name, string description, bool isPublic, List<string> trackUris)
         {
-            var userHttpClient = new HttpClient();
-            userHttpClient.BaseAddress = new Uri("https://api.spotify.com/v1/");
-            userHttpClient.DefaultRequestHeaders.Authorization = 
-                new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", accessToken);
-
             // Get current user's ID
-            var userResponse = await userHttpClient.GetAsync("me");
+            var userResponse = await _httpClient.GetAsync("me");
             if (!userResponse.IsSuccessStatusCode)
             {
                 throw new Exception($"Failed to get user profile: {userResponse.ReasonPhrase}");
@@ -134,7 +130,7 @@ namespace Arcas.Server.Services
                 @public = isPublic
             };
 
-            var createResponse = await userHttpClient.PostAsync(
+            var createResponse = await _httpClient.PostAsync(
                 $"users/{userId}/playlists",
                 new StringContent(JsonSerializer.Serialize(createPlaylistBody), System.Text.Encoding.UTF8, "application/json"));
 
@@ -154,7 +150,7 @@ namespace Arcas.Server.Services
             if (validTrackUris.Any())
             {
                 var addTracksBody = new { uris = validTrackUris };
-                var addTracksResponse = await userHttpClient.PostAsync(
+                var addTracksResponse = await _httpClient.PostAsync(
                     $"playlists/{playlistId}/tracks",
                     new StringContent(JsonSerializer.Serialize(addTracksBody), System.Text.Encoding.UTF8, "application/json"));
 
