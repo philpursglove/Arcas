@@ -1,4 +1,5 @@
-﻿using Arcas.Server.Services;
+﻿using Arcas.Server.DTO;
+using Arcas.Server.Services;
 using Microsoft.AspNetCore.Mvc;
 
 namespace Arcas.Server.Controllers;
