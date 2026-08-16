@@ -24,9 +24,9 @@ public class SpotifyController : ControllerBase
     }
 
     [HttpGet("getclientid")]
-    public string GetClientId()
+    public IActionResult GetClientId()
     {
-        return _spotifyService.GetClientId();
+        return new JsonResult(_spotifyService.GetClientId());
     }
 
     [HttpPost("exchangetoken")]
