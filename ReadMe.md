@@ -2,3 +2,9 @@
 
 Arcas
 =====
+
+TODO
+====
+- HybridCache with Redis backup
+- Refactor backend to Azure Functions
+- IaC
