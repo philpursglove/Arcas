@@ -1,5 +1,6 @@
 ﻿using Arcas.Server.DTO.Inbound;
 using Arcas.Server.DTO.Outbound;
+using Microsoft.Extensions.Caching.Memory;
 using Microsoft.Extensions.Options;
 using System.Text.Json;
 
@@ -9,11 +10,13 @@ namespace Arcas.Server.Services
     {
         private readonly ApiKeys _apiKeys;
         private readonly HttpClient _httpClient;
+        private readonly IMemoryCache _memoryCache;
 
-        public SetlistService(IOptions<ApiKeys> options, HttpClient httpClient)
+        public SetlistService(IOptions<ApiKeys> options, HttpClient httpClient, IMemoryCache memoryCache)
         {
             _apiKeys = options.Value;
             _httpClient = httpClient;
+            _memoryCache = memoryCache;
 
             _httpClient.BaseAddress = new Uri("https://api.setlist.fm/rest/1.0/");
             _httpClient.DefaultRequestHeaders.Add("x-api-key", _apiKeys.SetlistFmApiKey);
@@ -22,6 +25,12 @@ namespace Arcas.Server.Services
 
         public async Task<DTO.Outbound.Setlist?> GetSetlist(string setlistId)
         {
+            var cachedResult = _memoryCache.Get<DTO.Outbound.Setlist>($"setlist/setlist/{setlistId}");
+            if (cachedResult != null)
+            {
+                return cachedResult;
+            }
+
             var setlistUrl = $"setlist/{setlistId}";
             var response = await _httpClient.GetAsync(setlistUrl);
             if (!response.IsSuccessStatusCode)
@@ -57,6 +66,8 @@ namespace Arcas.Server.Services
                             new List<DTO.Outbound.Song>();
             setlist.formattedDate = DateTime.Parse(setlistResult.EventDate).ToString("d MMM yyyy");
             setlist.url = setlistResult.SetlistUri.ToString();
+
+            _memoryCache.Set($"setlist/setlist/{setlistId}", setlist, TimeSpan.FromMinutes(30));
 
             return setlist;
         }
@@ -102,6 +113,12 @@ namespace Arcas.Server.Services
 
         public async Task<List<DTO.Outbound.Setlist>?> ArtistSearch(string searchText)
         {
+            var cachedResult = _memoryCache.Get<List<DTO.Outbound.Setlist>>($"setlist/artist/{searchText}");
+            if (cachedResult != null)
+            {
+                return cachedResult;
+            }
+
             var setlistApiUrl = $"search/artists?artistName={Uri.EscapeDataString(searchText)}&sort=relevance";
             var response = await _httpClient.GetAsync(setlistApiUrl);
             if (!response.IsSuccessStatusCode)
@@ -118,7 +135,9 @@ namespace Arcas.Server.Services
                 var artist =
                     artistSearchResult.Artists.First(a => a.Name.ToLowerInvariant() == searchText.ToLowerInvariant());
 
-                return await GetArtistSetlistsPage(artist.Id, 1);
+                var result = await GetArtistSetlistsPage(artist.Id, 1);
+                _memoryCache.Set($"setlist/artist/{searchText}", result, TimeSpan.FromMinutes(30));
+                return result;
             }
 
             return null;
