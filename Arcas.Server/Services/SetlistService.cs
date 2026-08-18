@@ -25,7 +25,8 @@ namespace Arcas.Server.Services
 
         public async Task<DTO.Outbound.Setlist?> GetSetlist(string setlistId)
         {
-            var cachedResult = _memoryCache.Get<DTO.Outbound.Setlist>($"setlist/setlist/{setlistId}");
+            var cacheKey = $"setlist/setlist/{setlistId}";
+            var cachedResult = _memoryCache.Get<DTO.Outbound.Setlist>(cacheKey);
             if (cachedResult != null)
             {
                 return cachedResult;
@@ -71,15 +72,15 @@ namespace Arcas.Server.Services
 
             if (lastUpdated < TimeSpan.FromDays(1))
             {
-                _memoryCache.Set($"setlist/setlist/{setlistId}", setlist, TimeSpan.FromMinutes(30));
+                _memoryCache.Set(cacheKey, setlist, TimeSpan.FromMinutes(30));
             }
             else if (lastUpdated < TimeSpan.FromDays(7))
             {
-                _memoryCache.Set($"setlist/setlist/{setlistId}", setlist, TimeSpan.FromHours(6));
+                _memoryCache.Set(cacheKey, setlist, TimeSpan.FromHours(6));
             }
             else
             {
-                _memoryCache.Set($"setlist/setlist/{setlistId}", setlist, TimeSpan.FromDays(7));
+                _memoryCache.Set(cacheKey, setlist, TimeSpan.FromDays(7));
             }
 
             return setlist;
@@ -126,7 +127,8 @@ namespace Arcas.Server.Services
 
         public async Task<List<DTO.Outbound.Setlist>?> ArtistSearch(string searchText)
         {
-            var cachedResult = _memoryCache.Get<List<DTO.Outbound.Setlist>>($"setlist/artist/{searchText}");
+            var cacheKey = $"setlist/artist/{searchText}";
+            var cachedResult = _memoryCache.Get<List<DTO.Outbound.Setlist>>(cacheKey);
             if (cachedResult != null)
             {
                 return cachedResult;
@@ -149,7 +151,7 @@ namespace Arcas.Server.Services
                     artistSearchResult.Artists.First(a => a.Name.ToLowerInvariant() == searchText.ToLowerInvariant());
 
                 var result = await GetArtistSetlistsPage(artist.Id, 1);
-                _memoryCache.Set($"setlist/artist/{searchText}", result, TimeSpan.FromDays(1));
+                _memoryCache.Set(cacheKey, result, TimeSpan.FromDays(1));
                 return result;
             }
 
