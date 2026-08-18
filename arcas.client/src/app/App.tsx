@@ -4,6 +4,7 @@ import {
     ArrowLeft, Disc3, Link, Globe, Lock, Users, X
 } from "lucide-react";
 import * as SpotifyHelper from "../SpotifyHelper";
+import { ApplicationInsights } from '@microsoft/applicationinsights-web'
 
 type PlaylistVisibility = "public" | "private" | "collaborative";
 type CoverOption = "exclude" | "by-artist" | "by-original";
@@ -914,6 +915,14 @@ export default function App() {
         setSelected(null);
         setView("search");
     }
+
+    const appInsights = new ApplicationInsights({
+        config: {
+            connectionString: 'InstrumentationKey=7d6a73c5-6801-4ab8-8501-4421fc289581;IngestionEndpoint=https://uksouth-1.in.applicationinsights.azure.com/;LiveEndpoint=https://uksouth.livediagnostics.monitor.azure.com/;ApplicationId=e8183ec3-1d43-4a2e-be6e-5040066c231b'
+        }
+    });
+    appInsights.loadAppInsights();
+    appInsights.trackPageView();
 
     return (
         <div
