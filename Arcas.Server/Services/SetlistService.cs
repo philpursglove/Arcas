@@ -67,7 +67,20 @@ namespace Arcas.Server.Services
             setlist.formattedDate = DateTime.Parse(setlistResult.EventDate).ToString("d MMM yyyy");
             setlist.url = setlistResult.SetlistUri.ToString();
 
-            _memoryCache.Set($"setlist/setlist/{setlistId}", setlist, TimeSpan.FromMinutes(30));
+            var lastUpdated = DateTime.Now - setlistResult.LastUpdatedDateTime;
+
+            if (lastUpdated < TimeSpan.FromDays(1))
+            {
+                _memoryCache.Set($"setlist/setlist/{setlistId}", setlist, TimeSpan.FromMinutes(30));
+            }
+            else if (lastUpdated < TimeSpan.FromDays(7))
+            {
+                _memoryCache.Set($"setlist/setlist/{setlistId}", setlist, TimeSpan.FromHours(6));
+            }
+            else
+            {
+                _memoryCache.Set($"setlist/setlist/{setlistId}", setlist, TimeSpan.FromDays(7));
+            }
 
             return setlist;
         }
@@ -136,7 +149,7 @@ namespace Arcas.Server.Services
                     artistSearchResult.Artists.First(a => a.Name.ToLowerInvariant() == searchText.ToLowerInvariant());
 
                 var result = await GetArtistSetlistsPage(artist.Id, 1);
-                _memoryCache.Set($"setlist/artist/{searchText}", result, TimeSpan.FromMinutes(30));
+                _memoryCache.Set($"setlist/artist/{searchText}", result, TimeSpan.FromDays(1));
                 return result;
             }
 
