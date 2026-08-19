@@ -429,6 +429,11 @@ function SetlistView({
         }
     });
 
+    // Scroll to top when component mounts
+    useEffect(() => {
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+    }, []);
+
     return (
         <div className= "min-h-screen flex flex-col" >
         <header className="flex items-center justify-between px-8 py-6 border-b border-border sticky top-0 bg-background/80 backdrop-blur-md z-10" >
