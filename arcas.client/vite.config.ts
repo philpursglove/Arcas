@@ -74,6 +74,7 @@ export default defineConfig({
             }
         },
         port: parseInt(env.DEV_SERVER_PORT || '55262'),
+        host: '127.0.0.1',
         https: {
             key: fs.readFileSync(keyFilePath),
             cert: fs.readFileSync(certFilePath),
