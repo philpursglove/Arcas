@@ -178,7 +178,7 @@ namespace Arcas.Server.Services
             var content = await response.Content.ReadAsStringAsync();
             var attendedSetlists = JsonSerializer.Deserialize<AttendedSetlists>(content);
             var recentArtists = attendedSetlists.Setlists.Select(s => s.Artist.Name).Distinct().Take(4).ToList();
-            _memoryCache.Set(cacheKey, recentArtists, TimeSpan.FromDays(1));
+            _memoryCache.Set(cacheKey, recentArtists, TimeSpan.FromDays(7));
             return recentArtists;
         }
     }
