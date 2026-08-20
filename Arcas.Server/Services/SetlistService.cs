@@ -157,5 +157,29 @@ namespace Arcas.Server.Services
 
             return null;
         }
+
+        public async Task<List<string>> GetRecentArtists()
+        {
+            var cacheKey = "setlist/recent-artists";
+            var cachedResult = _memoryCache.Get<List<string>>(cacheKey);
+
+            if (cachedResult != null)
+            {
+                return new List<string>();
+            }
+
+            var setlistUrl = "user/PhilPursglove/attended";
+            var response = await _httpClient.GetAsync(setlistUrl);
+            if (!response.IsSuccessStatusCode)
+            {
+                return new List<string>();
+            }
+
+            var content = await response.Content.ReadAsStringAsync();
+            var attendedSetlists = JsonSerializer.Deserialize<AttendedSetlists>(content);
+            var recentArtists = attendedSetlists.Setlists.Select(s => s.Artist.Name).Distinct().Take(4).ToList();
+            _memoryCache.Set(cacheKey, recentArtists, TimeSpan.FromDays(1));
+            return recentArtists;
+        }
     }
 }

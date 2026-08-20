@@ -2,6 +2,12 @@
 
 namespace Arcas.Server.DTO.Inbound
 {
+    internal class AttendedSetlists
+    {
+        [JsonPropertyName("setlist")]
+        public List<Setlist> Setlists { get; set; }
+    }
+
     internal class SetlistArtistSearchResult
     {
         [JsonPropertyName("artist")]
