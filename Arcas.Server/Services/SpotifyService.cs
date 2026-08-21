@@ -111,16 +111,11 @@ namespace Arcas.Server.Services
 
         public async Task<object> CreatePlaylist(string accessToken, string name, string description, bool isPublic, List<string> trackUris)
         {
-            // Get current user's ID
-            var userResponse = await _httpClient.GetAsync("me");
-            if (!userResponse.IsSuccessStatusCode)
-            {
-                throw new Exception($"Failed to get user profile: {userResponse.ReasonPhrase}");
-            }
-
-            var userContent = await userResponse.Content.ReadAsStringAsync();
-            var userJson = JsonSerializer.Deserialize<JsonElement>(userContent);
-            var userId = userJson.GetProperty("id").GetString();
+            // Create a temporary HttpClient with the user's access token
+            using var httpClient = new HttpClient();
+            httpClient.BaseAddress = new Uri("https://api.spotify.com/v1/");
+            httpClient.DefaultRequestHeaders.Authorization = 
+                new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", accessToken);
 
             // Create playlist
             var createPlaylistBody = new
@@ -130,8 +125,8 @@ namespace Arcas.Server.Services
                 @public = isPublic
             };
 
-            var createResponse = await _httpClient.PostAsync(
-                $"users/{userId}/playlists",
+            var createResponse = await httpClient.PostAsync(
+                $"me/playlists",
                 new StringContent(JsonSerializer.Serialize(createPlaylistBody), System.Text.Encoding.UTF8, "application/json"));
 
             if (!createResponse.IsSuccessStatusCode)
@@ -150,7 +145,7 @@ namespace Arcas.Server.Services
             if (validTrackUris.Any())
             {
                 var addTracksBody = new { uris = validTrackUris };
-                var addTracksResponse = await _httpClient.PostAsync(
+                var addTracksResponse = await httpClient.PostAsync(
                     $"playlists/{playlistId}/tracks",
                     new StringContent(JsonSerializer.Serialize(addTracksBody), System.Text.Encoding.UTF8, "application/json"));
 
