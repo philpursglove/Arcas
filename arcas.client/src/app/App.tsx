@@ -830,6 +830,42 @@ export default function App() {
 
         // Load Spotify client ID
         SpotifyHelper.getSpotifyClientId().then(setSpotifyClientId);
+
+        // Initialize history state
+        if (!window.history.state) {
+            window.history.replaceState({ view: 'search' }, '', window.location.pathname);
+        }
+    }, []);
+
+    // Handle browser back/forward buttons
+    useEffect(() => {
+        const handlePopState = (event: PopStateEvent) => {
+            if (event.state && event.state.view) {
+                const historyView = event.state.view as AppView;
+                setView(historyView);
+
+                // Handle navigation based on where we came from
+                if (historyView === 'setlist') {
+                    // Going forward to setlist - keep the selected setlist
+                    return;
+                }
+
+                if (historyView === 'results') {
+                    // Going back to results - clear selected setlist
+                    setSelected(null);
+                }
+
+                if (historyView === 'search') {
+                    // Going back to search - clear everything
+                    setResults([]);
+                    setSelected(null);
+                    setArtist(null);
+                }
+            }
+        };
+
+        window.addEventListener('popstate', handlePopState);
+        return () => window.removeEventListener('popstate', handlePopState);
     }, []);
 
     async function exchangeCodeForToken(code: string, codeVerifier: string) {
@@ -866,6 +902,10 @@ export default function App() {
         setArtist(searchResult[0].artist);
         setResults(searchResult);
         setView("results");
+
+        // Push history state for results view
+        window.history.pushState({ view: 'results' }, '', window.location.pathname);
+
         setLoading(false);
     }
 
@@ -899,12 +939,19 @@ export default function App() {
 
         setSelected(pasteResult);
         setView("setlist");
+
+        // Push history state for setlist view (from search)
+        window.history.pushState({ view: 'setlist', fromSearch: true }, '', window.location.pathname);
+
         setLoading(false);
     }
 
     function handleSelect(s: Setlist) {
         setSelected(s);
         setView("setlist");
+
+        // Push history state for setlist view (from results)
+        window.history.pushState({ view: 'setlist', fromResults: true }, '', window.location.pathname);
     }
 
     async function handleCreatePlaylist(v: PlaylistVisibility) {
@@ -995,7 +1042,7 @@ export default function App() {
                     query={ query }
     setlists = { results }
     onSelect = { handleSelect }
-    onBack = { handleReset }
+    onBack = {() => window.history.back()}
     loadNextPage = { loadNextPage }
     loadingMore = { loadingMore }
         />
@@ -1005,8 +1052,7 @@ export default function App() {
     view === "setlist" && selected && (
         <SetlistView
                     setlist={ selected }
-    onBack = {() => setView("results")
-}
+    onBack = {() => window.history.back()}
 onCreatePlaylist = { handleCreatePlaylist }
     />
             )}
