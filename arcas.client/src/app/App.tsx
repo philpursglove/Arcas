@@ -800,7 +800,20 @@ export default function App() {
             setSpotifyAccessToken(existingToken);
         }
 
-        // Handle OAuth callback
+        // Handle OAuth callback for popup flow
+        if (window.opener) {
+            // We're in a popup - handle callback and notify parent
+            const handled = SpotifyHelper.handlePopupCallback();
+            if (handled) {
+                // The popup has sent the message to the parent
+                // Show a simple message and close
+                document.body.innerHTML = '<div style="display: flex; align-items: center; justify-content: center; height: 100vh; font-family: sans-serif;">Authentication successful! Closing window...</div>';
+                setTimeout(() => window.close(), 1000);
+                return;
+            }
+        }
+
+        // Handle OAuth callback for fallback full-page redirect
         const callbackData = SpotifyHelper.parseCallbackUrl();
         if (callbackData) {
             const { code } = callbackData;
@@ -901,10 +914,31 @@ export default function App() {
         const token = SpotifyHelper.getSpotifyToken();
 
         if (!token) {
-            // No valid token - redirect to Spotify auth
+            // No valid token - open Spotify auth in popup
             if (spotifyClientId) {
-                const redirectUri = window.location.origin + window.location.pathname;
-                await SpotifyHelper.redirectToSpotifyAuth(spotifyClientId, redirectUri);
+                try {
+                    const redirectUri = window.location.origin + window.location.pathname;
+                    const authResult = await SpotifyHelper.openSpotifyAuthPopup(spotifyClientId, redirectUri);
+
+                    if (authResult) {
+                        const { code } = authResult;
+                        const codeVerifier = SpotifyHelper.getCodeVerifier();
+
+                        if (codeVerifier) {
+                            // Exchange code for token
+                            await exchangeCodeForToken(code, codeVerifier);
+                            // Token is now set, proceed to creating view
+                            const newToken = SpotifyHelper.getSpotifyToken();
+                            if (newToken) {
+                                setSpotifyAccessToken(newToken);
+                                setView("creating");
+                            }
+                        }
+                    }
+                } catch (error) {
+                    console.error('Authentication failed:', error);
+                    // Could show an error message to the user here
+                }
             }
             return;
         }

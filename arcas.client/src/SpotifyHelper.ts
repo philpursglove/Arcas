@@ -60,6 +60,78 @@ export async function redirectToSpotifyAuth(clientId: string, redirectUri: strin
     window.location.href = `https://accounts.spotify.com/authorize?${params.toString()}`;
 }
 
+export async function openSpotifyAuthPopup(clientId: string, redirectUri: string): Promise<{code: string, state: string} | null> {
+    const codeVerifier = generateCodeVerifier();
+    const codeChallenge = await generateCodeChallenge(codeVerifier);
+    const state = generateRandomString(16);
+
+    // Store code verifier and state for later verification
+    localStorage.setItem('spotify_code_verifier', codeVerifier);
+    localStorage.setItem('spotify_auth_state', state);
+
+    const params = new URLSearchParams({
+        client_id: clientId,
+        response_type: 'code',
+        redirect_uri: redirectUri,
+        state: state,
+        scope: 'playlist-modify-public playlist-modify-private',
+        code_challenge_method: 'S256',
+        code_challenge: codeChallenge,
+    });
+
+    const authUrl = `https://accounts.spotify.com/authorize?${params.toString()}`;
+
+    // Open popup window
+    const width = 500;
+    const height = 700;
+    const left = window.screenX + (window.outerWidth - width) / 2;
+    const top = window.screenY + (window.outerHeight - height) / 2;
+
+    const popup = window.open(
+        authUrl,
+        'Spotify Authorization',
+        `width=${width},height=${height},left=${left},top=${top},popup=yes`
+    );
+
+    if (!popup) {
+        throw new Error('Failed to open popup window. Please allow popups for this site.');
+    }
+
+    // Wait for the popup to send back the auth code
+    return new Promise((resolve, reject) => {
+        const checkInterval = setInterval(() => {
+            if (popup.closed) {
+                clearInterval(checkInterval);
+                reject(new Error('Authentication cancelled'));
+            }
+        }, 500);
+
+        const messageHandler = (event: MessageEvent) => {
+            // Verify origin for security
+            if (event.origin !== window.location.origin) {
+                return;
+            }
+
+            if (event.data.type === 'spotify-auth-callback') {
+                clearInterval(checkInterval);
+                window.removeEventListener('message', messageHandler);
+                popup.close();
+
+                const { code, state: returnedState } = event.data;
+                const storedState = localStorage.getItem('spotify_auth_state');
+
+                if (returnedState === storedState && code) {
+                    resolve({ code, state: returnedState });
+                } else {
+                    reject(new Error('Invalid auth response'));
+                }
+            }
+        };
+
+        window.addEventListener('message', messageHandler);
+    });
+}
+
 export function parseCallbackUrl(): { code: string; state: string } | null {
     const params = new URLSearchParams(window.location.search);
     const code = params.get('code');
@@ -71,6 +143,27 @@ export function parseCallbackUrl(): { code: string; state: string } | null {
     }
 
     return { code, state };
+}
+
+export function handlePopupCallback(): boolean {
+    const params = new URLSearchParams(window.location.search);
+    const code = params.get('code');
+    const state = params.get('state');
+
+    if (code && state && window.opener) {
+        // Send the auth data back to the parent window
+        window.opener.postMessage(
+            {
+                type: 'spotify-auth-callback',
+                code,
+                state
+            },
+            window.location.origin
+        );
+        return true;
+    }
+
+    return false;
 }
 
 // Token management functions
