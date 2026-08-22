@@ -1,6 +1,8 @@
 <Solution>
   <Folder Name="/Solution Items/">
     <File Path=".github/workflows/build.yml" />
+    <File Path=".github/workflows/main_arcasapp.yml" />
+    <File Path="ReadMe.md" />
   </Folder>
   <Project Path="arcas.client/arcas.client.esproj">
     <Build />
