@@ -114,7 +114,7 @@ namespace Arcas.Server.Services
             // Create a temporary HttpClient with the user's access token
             using var httpClient = new HttpClient();
             httpClient.BaseAddress = new Uri("https://api.spotify.com/v1/");
-            httpClient.DefaultRequestHeaders.Authorization = 
+            httpClient.DefaultRequestHeaders.Authorization =
                 new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", accessToken);
 
             // Create playlist
@@ -146,7 +146,7 @@ namespace Arcas.Server.Services
             {
                 var addTracksBody = new { uris = validTrackUris };
                 var addTracksResponse = await httpClient.PostAsync(
-                    $"playlists/{playlistId}/tracks",
+                    $"playlists/{playlistId}/items",
                     new StringContent(JsonSerializer.Serialize(addTracksBody), System.Text.Encoding.UTF8, "application/json"));
 
                 if (!addTracksResponse.IsSuccessStatusCode)
