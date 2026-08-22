@@ -65,7 +65,7 @@ namespace Arcas.Server.Controllers
         public async Task<IActionResult> GetRecentArtists()
         {
             var recentArtists = await _service.GetRecentArtists();
-            return new OkObjectResult(recentArtists);
+            return new OkObjectResult(string.Join(", ", recentArtists));
         }
     }
 }
