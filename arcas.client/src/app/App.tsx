@@ -573,7 +573,7 @@ function CreatingView({ setlist, playlist, setPlaylist, onComplete, accessToken,
         });
         // const songs = setlist.songs;
         const newPlaylist: Playlist = {
-            name: `${setlist.artist.name}, ${setlist.venue.name}, (${setlist.formattedDate})`,
+            name: `${setlist.artist.name}, ${setlist.venue.name}, ${setlist.formattedDate}`,
             id: '',
             visibility: 'public',
             url: '',
