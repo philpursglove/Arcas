@@ -1,5 +1,6 @@
 ﻿using Arcas.Server.DTO.Inbound;
 using Arcas.Server.DTO.Outbound;
+using Humanizer;
 using Microsoft.Extensions.Caching.Memory;
 using Microsoft.Extensions.Options;
 using System.Text.Json;
@@ -65,7 +66,7 @@ namespace Arcas.Server.Services
                                 }) ?? new List<DTO.Outbound.Song>()).Where(s => !string.IsNullOrWhiteSpace(s.Name))
                             .ToList() ??
                             new List<DTO.Outbound.Song>();
-            setlist.formattedDate = DateTime.Parse(setlistResult.EventDate).ToString("d MMM yyyy");
+            setlist.formattedDate = DateTime.Parse(setlistResult.EventDate).ToOrdinalWords();
             setlist.url = setlistResult.SetlistUri.ToString();
 
             var lastUpdated = DateTime.Now - setlistResult.LastUpdatedDateTime;
@@ -116,7 +117,7 @@ namespace Arcas.Server.Services
                             }) ?? new List<DTO.Outbound.Song>()).Where(s => !string.IsNullOrWhiteSpace(s.Name))
                         .ToList() ??
                         new List<DTO.Outbound.Song>(),
-                formattedDate = DateTime.Parse(s.EventDate).ToString("d MMM yyyy"),
+                formattedDate = DateTime.Parse(s.EventDate).ToOrdinalWords(),
                 url = s.SetlistUri.ToString()
             }).ToList();
             setlists = setlists.Where(s => s.eventDate <= DateOnly.FromDateTime(DateTime.Today)
