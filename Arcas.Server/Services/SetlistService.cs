@@ -45,7 +45,7 @@ namespace Arcas.Server.Services
 
             var setlist = new DTO.Outbound.Setlist();
             setlist.Id = setlistResult.Id;
-            setlist.eventDate = DateOnly.FromDateTime(DateTime.Parse(setlistResult.EventDate));
+            setlist.eventDate = setlistResult.EventDate;
             setlist.Venue = new DTO.Outbound.Venue()
             {
                 Name = setlistResult.Venue?.Name,
@@ -66,7 +66,7 @@ namespace Arcas.Server.Services
                                 }) ?? new List<DTO.Outbound.Song>()).Where(s => !string.IsNullOrWhiteSpace(s.Name))
                             .ToList() ??
                             new List<DTO.Outbound.Song>();
-            setlist.formattedDate = DateTime.Parse(setlistResult.EventDate).ToOrdinalWords();
+            setlist.formattedDate = setlistResult.EventDate.ToOrdinalWords();
             setlist.url = setlistResult.SetlistUri.ToString();
 
             var lastUpdated = DateTime.Now - setlistResult.LastUpdatedDateTime;
@@ -101,7 +101,7 @@ namespace Arcas.Server.Services
             var setlists = setlistsResult.Setlists.Select(s => new DTO.Outbound.Setlist()
             {
                 Id = s.Id,
-                eventDate = DateOnly.FromDateTime(DateTime.Parse(s.EventDate)),
+                eventDate = s.EventDate,
                 Venue = new DTO.Outbound.Venue()
                 { Name = s.Venue?.Name, City = s.Venue?.City?.Name, Country = s.Venue?.City?.Country?.Name },
                 Artist = new Artist() { Name = s.Artist?.Name, Id = s.Artist?.Id },
@@ -117,7 +117,7 @@ namespace Arcas.Server.Services
                             }) ?? new List<DTO.Outbound.Song>()).Where(s => !string.IsNullOrWhiteSpace(s.Name))
                         .ToList() ??
                         new List<DTO.Outbound.Song>(),
-                formattedDate = DateTime.Parse(s.EventDate).ToOrdinalWords(),
+                formattedDate = s.EventDate.ToOrdinalWords(),
                 url = s.SetlistUri.ToString()
             }).ToList();
             setlists = setlists.Where(s => s.eventDate <= DateOnly.FromDateTime(DateTime.Today)

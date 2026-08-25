@@ -35,7 +35,7 @@ namespace Arcas.Server.DTO.Inbound
         public string Id { get; set; }
 
         [JsonPropertyName("eventDate")]
-        public string EventDate { get; set; }
+        public string EventDateString { get; set; }
 
         [JsonPropertyName("venue")]
         public Venue Venue { get; set; }
@@ -56,6 +56,8 @@ namespace Arcas.Server.DTO.Inbound
         public string LastUpdated { get; set; }
 
         public DateTime LastUpdatedDateTime { get => DateTime.Parse(LastUpdated); private set { } }
+
+        public DateOnly EventDate { get => DateOnly.FromDateTime(DateTime.Parse(EventDateString)); private set { } }
     }
 
     internal class Tour
