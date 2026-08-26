@@ -1,4 +1,4 @@
-﻿namespace Arcas.Server.DTO;
+﻿namespace Arcas.Server.DTO.Inbound;
 
 public class TokenExchangeRequest
 {

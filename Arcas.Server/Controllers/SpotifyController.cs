@@ -1,4 +1,4 @@
-﻿using Arcas.Server.DTO;
+﻿using Arcas.Server.DTO.Inbound;
 using Arcas.Server.Services;
 using Microsoft.AspNetCore.Mvc;
 
