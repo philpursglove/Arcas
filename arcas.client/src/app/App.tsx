@@ -999,6 +999,7 @@ export default function App() {
         setQuery("");
         setResults([]);
         setSelected(null);
+        setPlaylist(null);
         setView("search");
     }
 
