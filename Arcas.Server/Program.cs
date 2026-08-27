@@ -1,5 +1,9 @@
 using Arcas.Server;
 using Arcas.Server.Services;
+using System.Globalization;
+
+CultureInfo.CurrentCulture = new CultureInfo("en-GB");
+CultureInfo.CurrentUICulture = new CultureInfo("en-GB");
 
 var builder = WebApplication.CreateBuilder(args);
 
