@@ -169,12 +169,14 @@ function HeroSearch({
     onSearch,
     onPasteUrl,
     loading,
+    recentArtists,
 }: {
     query: string;
     setQuery: (v: string) => void;
     onSearch: () => void;
     onPasteUrl: (url: string) => void;
     loading: boolean;
+    recentArtists: string[];
 }) {
     const [tab, setTab] = useState<"search" | "url">("search");
     const [urlInput, setUrlInput] = useState("");
@@ -273,24 +275,20 @@ Search
     </button>
     </div>
     < p className = "text-xs text-muted-foreground font-mono mt-3" >
-        Try: Radiohead, Arctic Monkeys, Beyoncé, Taylor Swift
+{/* //TODO: Have a better boilerplate fallback list */ }
+{/* Maybe even get the user to sign in to Setlist and then get *their* recent artists */}
+        Try: {recentArtists.length > 0 ? recentArtists.join(', ') : 'Radiohead, Arctic Monkeys, Beyoncé, Taylor Swift'} 
             </p>
             </>
                     ) : (
     <>
     <div className= "relative flex items-center" >
     <Link size={ 18 } className = "absolute left-4 text-muted-foreground pointer-events-none" />
-        <input
-                                    type="url"
-placeholder = "https://www.setlist.fm/setlist/…"
-value = { urlInput }
-onChange = {(e) => { setUrlInput(e.target.value); setUrlError(""); }}
-onKeyDown = {(e) => e.key === "Enter" && handleUrlSubmit()}
-className = {`w-full pl-12 pr-36 py-4 bg-card border rounded-xl text-foreground placeholder-muted-foreground focus:outline-none focus:ring-1 transition-all font-mono text-sm ${urlError
-    ? "border-destructive focus:border-destructive focus:ring-destructive/30"
-    : "border-border focus:border-primary focus:ring-primary/30"
-    }`}
-                                />
+        <input type="url" placeholder = "https://www.setlist.fm/setlist/…" value = {urlInput}
+            onChange = {(e) => { setUrlInput(e.target.value); setUrlError(""); }}
+            onKeyDown = {(e) => e.key === "Enter" && handleUrlSubmit()}
+className = {`w-full pl-12 pr-36 py-4 bg-card border rounded-xl text-foreground placeholder-muted-foreground focus:outline-none focus:ring-1 transition-all font-mono text-sm 
+            ${urlError ? "border-destructive focus:border-destructive focus:ring-destructive/30" : "border-border focus:border-primary focus:ring-primary/30"}`} />
     < button
 onClick = { handleUrlSubmit }
 disabled = { loading || !urlInput.trim()}
@@ -791,6 +789,7 @@ export default function App() {
     const [playlist, setPlaylist] = useState<Playlist | null>(null);
     const [spotifyAccessToken, setSpotifyAccessToken] = useState<string | null>(null);
     const [spotifyClientId, setSpotifyClientId] = useState<string>("");
+    const [recentArtists, setRecentArtists] = useState<string[]>([]);
 
     // Handle OAuth callback and load initial data
     useEffect(() => {
@@ -830,6 +829,12 @@ export default function App() {
 
         // Load Spotify client ID
         SpotifyHelper.getSpotifyClientId().then(setSpotifyClientId);
+
+        // Load recent artists
+        fetch('Setlist/getrecentartists')
+            .then(response => response.json())
+            .then(data => setRecentArtists(data))
+            .catch(() => setRecentArtists([]));
 
         // Initialize history state
         if (!window.history.state) {
@@ -1034,6 +1039,7 @@ export default function App() {
     onSearch = { handleSearch }
     onPasteUrl = { handlePasteUrl }
     loading = { loading }
+    recentArtists = { recentArtists }
         />
             )
 }
