@@ -1,4 +1,5 @@
-﻿using System.Text.Json.Serialization;
+﻿using System.Globalization;
+using System.Text.Json.Serialization;
 
 namespace Arcas.Server.DTO.Inbound
 {
@@ -55,9 +56,9 @@ namespace Arcas.Server.DTO.Inbound
         [JsonPropertyName("lastUpdated")]
         public string LastUpdated { get; set; }
 
-        public DateTime LastUpdatedDateTime { get => DateTime.Parse(LastUpdated); private set { } }
+        public DateTime LastUpdatedDateTime { get => DateTime.Parse(LastUpdated, new CultureInfo("en-GB")); private set { } }
 
-        public DateOnly EventDate { get => DateOnly.FromDateTime(DateTime.Parse(EventDateString)); private set { } }
+        public DateOnly EventDate { get => DateOnly.FromDateTime(DateTime.Parse(EventDateString, new CultureInfo("en-GB"))); private set { } }
     }
 
     internal class Tour

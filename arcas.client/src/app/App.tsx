@@ -312,7 +312,7 @@ Load
 </div>
 
 {/* Steps */ }
-<div className="mt-20 grid grid-cols-3 gap-8 max-w-xl w-full" >
+<div className="mt-12 grid grid-cols-3 gap-8 max-w-xl w-full" >
 {
     [
     { n: "01", label: "Find a setlist", desc: "Search any artist or paste a setlist.fm URL directly" },
