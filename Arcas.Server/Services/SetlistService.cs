@@ -166,7 +166,7 @@ namespace Arcas.Server.Services
 
             if (cachedResult != null)
             {
-                return new List<string>();
+                return cachedResult;
             }
 
             var setlistUrl = "user/PhilPursglove/attended";
