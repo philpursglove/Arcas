@@ -274,10 +274,13 @@ className = "absolute right-2 flex items-center gap-2 px-5 py-2.5 bg-primary tex
 Search
     </button>
     </div>
-    < p className = "text-xs text-muted-foreground font-mono mt-3" >
+    <p className = "text-xs text-muted-foreground font-mono mt-3" >
 {/* //TODO: Have a better boilerplate fallback list */ }
-{/* Maybe even get the user to sign in to Setlist and then get *their* recent artists */}
-        Try: {recentArtists.length > 0 ? recentArtists.join(', ') : 'Radiohead, Arctic Monkeys, Beyoncé, Taylor Swift'} 
+{/* Maybe even get the user to sign in to Setlist and then get *their* recent artists */ }
+{
+    recentArtists &&
+    `Try: ${ recentArtists.length > 0 ? recentArtists.join(', ') : 'Radiohead, Arctic Monkeys, Beyoncé, Taylor Swift' }`
+}
             </p>
             </>
                     ) : (
@@ -789,7 +792,7 @@ export default function App() {
     const [playlist, setPlaylist] = useState<Playlist | null>(null);
     const [spotifyAccessToken, setSpotifyAccessToken] = useState<string | null>(null);
     const [spotifyClientId, setSpotifyClientId] = useState<string>("");
-    const [recentArtists, setRecentArtists] = useState<string[]>([]);
+    const [recentArtists, setRecentArtists] = useState<string[] | null>(null);
 
     // Handle OAuth callback and load initial data
     useEffect(() => {
