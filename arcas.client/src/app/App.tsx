@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import React, { useState, useEffect } from "react";
 import {
     Search, Music, ListMusic, ChevronRight, Check, Loader2, ExternalLink, Play, Plus,
     ArrowLeft, Disc3, Link, Globe, Lock, Users, X
@@ -72,6 +72,10 @@ function Pill({ children }: { children: React.ReactNode }) {
         { children }
         </span>
     );
+}
+
+function RecentArtist({ name, onClick }: { name: string; onClick: (name: string) => void }) {
+    return (<span onClick={() => onClick(name)} className="cursor-pointer hover:text-foreground transition-colors">{name}</span>);
 }
 
 function SetlistCard({
@@ -275,11 +279,17 @@ Search
     </button>
     </div>
     <p className = "text-xs text-muted-foreground font-mono mt-3" >
-{/* //TODO: Have a better boilerplate fallback list */ }
-{/* Maybe even get the user to sign in to Setlist and then get *their* recent artists */ }
 {
-    recentArtists &&
-    `Try: ${ recentArtists.length > 0 ? recentArtists.join(', ') : 'Radiohead, Arctic Monkeys, Beyoncé, Taylor Swift' }`
+    recentArtists?.length > 0 ? (
+        <>Try: {recentArtists.map((artist, idx) => (
+            <React.Fragment key={idx}>
+                <RecentArtist name={artist} onClick={setQuery} />
+                {idx < recentArtists.length - 1 ? ', ' : ''}
+            </React.Fragment>
+        ))}</>
+    ) : (
+        <>Try: Radiohead, Arctic Monkeys, Beyoncé, Taylor Swift</>
+    )
 }
             </p>
             </>
