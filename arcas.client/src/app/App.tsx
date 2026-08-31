@@ -403,9 +403,6 @@ className = "flex items-center gap-2 text-sm text-muted-foreground hover:text-fo
                         )}
 { loadingMore ? "Loading…" : "Load more" }
 </button>
-    < p className = "text-xs font-mono text-muted-foreground" >
-        Demo mode — showing cached results.Connect API keys for live data.
-                    </p>
             </div>
             </main>
             </div>
