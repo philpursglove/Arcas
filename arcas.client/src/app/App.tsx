@@ -1062,7 +1062,8 @@ export default function App() {
                     query={ query }
     setlists = { results }
     onSelect = { handleSelect }
-    onBack = {() => window.history.back()}
+    onBack = {() => { setQuery(""); window.history.back(); }
+}
     loadNextPage = { loadNextPage }
     loadingMore = { loadingMore }
         />
