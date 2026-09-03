@@ -84,6 +84,8 @@ namespace Arcas.Server.Services
                 _memoryCache.Set(cacheKey, setlist, TimeSpan.FromDays(7));
             }
 
+            // TODO Save as recent setlist
+
             return setlist;
         }
 
@@ -181,6 +183,11 @@ namespace Arcas.Server.Services
             var recentArtists = attendedSetlists.Setlists.Select(s => s.Artist.Name).Distinct().Take(4).ToList();
             _memoryCache.Set(cacheKey, recentArtists, TimeSpan.FromDays(7));
             return recentArtists;
+        }
+
+        public async Task<> GetRecentSetlists()
+        {
+
         }
     }
 }

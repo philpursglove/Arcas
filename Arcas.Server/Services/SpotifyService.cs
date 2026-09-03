@@ -156,6 +156,8 @@ namespace Arcas.Server.Services
                 }
             }
 
+            // TODO Save as recent setlist
+
             return new
             {
                 id = playlistId,
