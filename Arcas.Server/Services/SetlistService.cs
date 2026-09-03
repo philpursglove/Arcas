@@ -185,9 +185,9 @@ namespace Arcas.Server.Services
             return recentArtists;
         }
 
-        public async Task<> GetRecentSetlists()
+        public async Task<List<RecentSetlist>> GetRecentSetlists()
         {
-
+            return new List<RecentSetlist>();
         }
     }
 }
