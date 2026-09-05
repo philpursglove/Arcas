@@ -20,6 +20,16 @@ builder.Services.AddMemoryCache();
 
 builder.Services.Configure<ApiKeys>(builder.Configuration.GetSection("ApiKeys"));
 
+var tableStorageConnectionString = builder.Configuration.GetConnectionString("AzureTableStorage");
+builder.Services.AddScoped<TableStorageClient<RecentSetlist>>(provider =>
+{
+    return new TableStorageClient<RecentSetlist>(tableStorageConnectionString);
+});
+builder.Services.AddScoped<TableStorageClient<RecentPlaylist>>(provider =>
+{
+    return new TableStorageClient<RecentPlaylist>(tableStorageConnectionString);
+});
+
 builder.Services.AddScoped<SetlistService>();
 builder.Services.AddScoped<SpotifyService>();
 
