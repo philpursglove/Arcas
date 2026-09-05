@@ -13,6 +13,6 @@ namespace Arcas.Server
         public string Artist { get; set; }
         public string Name { get; set; }
         public string SetlistId { get; set; }
-        public DateTime EventDate { get; set; }
+        public DateOnly EventDate { get; set; }
     }
 }
