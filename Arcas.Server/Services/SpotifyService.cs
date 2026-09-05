@@ -11,12 +11,15 @@ namespace Arcas.Server.Services
         private readonly HttpClient _httpClient;
         private readonly IMemoryCache _cache;
         private const string SpotifyBearerTokenCacheKey = "SpotifyBearerToken";
+        private readonly TableStorageClient<RecentPlaylist> _recentPlaylistClient;
 
-        public SpotifyService(IOptions<ApiKeys> options, HttpClient httpClient, IMemoryCache memoryCache)
+        public SpotifyService(IOptions<ApiKeys> options, HttpClient httpClient, IMemoryCache memoryCache,
+            TableStorageClient<RecentPlaylist> recentPlaylistClient)
         {
             _apiKeys = options.Value;
             _httpClient = httpClient;
             _cache = memoryCache;
+            _recentPlaylistClient = recentPlaylistClient;
 
             _httpClient.BaseAddress = new Uri("https://api.spotify.com/v1/");
             _httpClient.Timeout = TimeSpan.FromSeconds(30);
@@ -156,7 +159,14 @@ namespace Arcas.Server.Services
                 }
             }
 
-            // TODO Save as recent setlist
+            var recentPlaylist = new RecentPlaylist
+            {
+                Id = playlistId,
+                Name = name,
+                Url = playlistUrl,
+                CreatedAt = DateTime.UtcNow
+            };
+            await _recentPlaylistClient.Save(recentPlaylist);
 
             return new
             {
