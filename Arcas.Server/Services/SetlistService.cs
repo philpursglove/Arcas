@@ -12,12 +12,15 @@ namespace Arcas.Server.Services
         private readonly ApiKeys _apiKeys;
         private readonly HttpClient _httpClient;
         private readonly IMemoryCache _memoryCache;
+        private readonly TableStorageClient<RecentSetlist> _recentSetlistClient;
 
-        public SetlistService(IOptions<ApiKeys> options, HttpClient httpClient, IMemoryCache memoryCache)
+        public SetlistService(IOptions<ApiKeys> options, HttpClient httpClient, IMemoryCache memoryCache,
+            TableStorageClient<RecentSetlist> recentSetlistClient)
         {
             _apiKeys = options.Value;
             _httpClient = httpClient;
             _memoryCache = memoryCache;
+            _recentSetlistClient = recentSetlistClient;
 
             _httpClient.BaseAddress = new Uri("https://api.setlist.fm/rest/1.0/");
             _httpClient.DefaultRequestHeaders.Add("x-api-key", _apiKeys.SetlistFmApiKey);
@@ -84,7 +87,15 @@ namespace Arcas.Server.Services
                 _memoryCache.Set(cacheKey, setlist, TimeSpan.FromDays(7));
             }
 
-            // TODO Save as recent setlist
+            var recentSetlist = new RecentSetlist()
+            {
+                Id = setlist.Id,
+                Artist = setlist.Artist.Name,
+                Name = setlist.Tour ?? "Unknown Tour",
+                SetlistId = setlist.Id,
+                EventDate = setlist.eventDate
+            };
+            await _recentSetlistClient.Save(recentSetlist);
 
             return setlist;
         }
