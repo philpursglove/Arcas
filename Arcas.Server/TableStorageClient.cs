@@ -1,5 +1,4 @@
-﻿using Azure;
-using Azure.Data.Tables;
+﻿using Azure.Data.Tables;
 
 namespace Arcas.Server
 {
@@ -17,9 +16,9 @@ namespace Arcas.Server
             await tableClient.AddEntityAsync(entity);
         }
 
-        public async Task Delete(ETag etag)
+        public async Task Delete(T entity)
         {
-            await tableClient.DeleteEntityAsync(etag);
+            await tableClient.DeleteEntityAsync(entity.PartitionKey, entity.RowKey);
         }
     }
 }
