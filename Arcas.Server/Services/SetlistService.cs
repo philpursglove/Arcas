@@ -94,7 +94,7 @@ namespace Arcas.Server.Services
                 Name = setlist.Tour ?? "Unknown Tour",
                 SetlistId = setlist.Id,
                 EventDate = setlist.eventDate,
-                PartitionKey = "recent-setlists",
+                PartitionKey = "RecentSetlists",
                 RowKey = setlist.Id
             };
             await _recentSetlistClient.Save(recentSetlist);
@@ -200,7 +200,8 @@ namespace Arcas.Server.Services
 
         public async Task<List<RecentSetlist>> GetRecentSetlists()
         {
-            return new List<RecentSetlist>();
+            var setlists = await _recentSetlistClient.Query(s => s.PartitionKey == "RecentSetlists", 10);
+            return setlists.OrderByDescending(s => s.ViewedAt).ToList();
         }
     }
 }
