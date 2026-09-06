@@ -14,5 +14,6 @@ namespace Arcas.Server
         public string Name { get; set; }
         public string SetlistId { get; set; }
         public DateOnly EventDate { get; set; }
+        public DateTime ViewedAt { get; set; } = DateTime.UtcNow;
     }
 }
