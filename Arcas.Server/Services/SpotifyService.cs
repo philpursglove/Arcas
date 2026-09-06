@@ -178,5 +178,17 @@ namespace Arcas.Server.Services
                 trackCount = validTrackUris.Count
             };
         }
+
+        public async Task<List<RecentPlaylist>> GetRecentPlaylists()
+        {
+            var recentPlaylists = await _recentPlaylistClient.Query(p => p.PartitionKey == "RecentPlaylists", 10);
+            return recentPlaylists.OrderByDescending(p => p.CreatedAt).Select(p => new RecentPlaylist
+            {
+                Id = p.Id,
+                Name = p.Name,
+                Url = p.Url,
+                CreatedAt = p.CreatedAt,
+            }).ToList();
+        }
     }
 }
