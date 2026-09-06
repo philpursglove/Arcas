@@ -93,7 +93,9 @@ namespace Arcas.Server.Services
                 Artist = setlist.Artist.Name,
                 Name = setlist.Tour ?? "Unknown Tour",
                 SetlistId = setlist.Id,
-                EventDate = setlist.eventDate
+                EventDate = setlist.eventDate,
+                PartitionKey = "recent-setlists",
+                RowKey = setlist.Id
             };
             await _recentSetlistClient.Save(recentSetlist);
 
