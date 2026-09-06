@@ -1,8 +1,9 @@
 ﻿using Azure.Data.Tables;
+using System.Linq.Expressions;
 
 namespace Arcas.Server
 {
-    public class TableStorageClient<T> where T : ITableEntity
+    public class TableStorageClient<T> where T : class, ITableEntity
     {
         private readonly TableClient tableClient;
         public TableStorageClient(string connectionString)
@@ -19,6 +20,12 @@ namespace Arcas.Server
         public async Task Delete(T entity)
         {
             await tableClient.DeleteEntityAsync(entity.PartitionKey, entity.RowKey);
+        }
+
+        public async Task<List<T>> Query(Expression<Func<T, bool>> filter, int pageSize)
+        {
+            var pageable = tableClient.QueryAsync<T>(filter, maxPerPage: pageSize);
+            return await pageable.ToListAsync();
         }
     }
 }
