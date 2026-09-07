@@ -159,16 +159,19 @@ namespace Arcas.Server.Services
                 }
             }
 
-            var recentPlaylist = new RecentPlaylist
+            if (isPublic)
             {
-                Id = playlistId,
-                Name = name,
-                Url = playlistUrl,
-                CreatedAt = DateTime.UtcNow,
-                PartitionKey = "RecentPlaylists",
-                RowKey = playlistId
-            };
-            await _recentPlaylistClient.Save(recentPlaylist);
+                var recentPlaylist = new RecentPlaylist
+                {
+                    Id = playlistId,
+                    Name = name,
+                    Url = playlistUrl,
+                    CreatedAt = DateTime.UtcNow,
+                    PartitionKey = "RecentPlaylists",
+                    RowKey = playlistId
+                };
+                await _recentPlaylistClient.Save(recentPlaylist);
+            }
 
             return new
             {
