@@ -20,7 +20,7 @@ builder.Services.AddMemoryCache();
 
 builder.Services.Configure<ApiKeys>(builder.Configuration.GetSection("ApiKeys"));
 
-var tableStorageConnectionString = builder.Configuration.GetConnectionString("AzureTableStorage");
+var tableStorageConnectionString = builder.Configuration.GetConnectionString("TableStorageConnectionString");
 builder.Services.AddScoped<TableStorageClient<RecentSetlist>>(provider =>
 {
     return new TableStorageClient<RecentSetlist>(tableStorageConnectionString);
