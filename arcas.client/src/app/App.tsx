@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import {
     Search, Music, ListMusic, ChevronRight, Check, Loader2, ExternalLink, Play, Plus,
     ArrowLeft, Disc3, Link, Globe, Lock, Users, X
@@ -425,6 +425,9 @@ function SetlistView({
     onCreatePlaylist: (visibility: PlaylistVisibility) => void;
 }) {
     const [visibility, setVisibility] = useState<PlaylistVisibility>("public");
+    const [covers, setCovers] = useState<CoverOption>("exclude");
+    const [settingsOpen, setSettingsOpen] = useState(false);
+    const settingsRef = useRef<HTMLDivElement>(null);
     const songs = setlist.songs.map((s,i) => {
         if (s.name.indexOf(' / ') > 0)
         {
@@ -477,40 +480,72 @@ function SetlistView({
                         < div className = "w-px h-10 bg-border" />
                             </div>
 
-    {/* Visibility + Create */ }
-    <div className="mt-6 flex flex-col sm:flex-row items-stretch sm:items-center gap-3 p-4 bg-card border border-border rounded-xl" >
-        <div className="flex-1" >
-            <p className="text-xs font-mono text-muted-foreground mb-2 uppercase tracking-wider" > Playlist visibility </p>
-                < div className = "flex gap-2" >
-                {
-                    VISIBILITY_OPTIONS.map(({ value, label, desc, Icon }) => (
-                        <button
-                                        key= { value }
-                                        onClick = {() => setVisibility(value)}
-    title = { desc }
-    className = {`flex items-center gap-1.5 px-3 py-2 rounded-lg text-sm font-medium border transition-all ${visibility === value
-        ? "bg-primary/10 border-primary/40 text-primary"
-        : "border-border text-muted-foreground hover:text-foreground hover:border-border/80"
-        }`
-}
-                                    >
-    <Icon size={ 13 } />
-{ label }
-</button>
-                                ))}
-</div>
-    < p className = "text-xs text-muted-foreground font-mono mt-1.5" >
-    { VISIBILITY_OPTIONS.find((o) => o.value === visibility)?.desc }
-        </p>
-        </div>
-        < button
-onClick = {() => onCreatePlaylist(visibility)}
-className = "flex items-center justify-center gap-2 px-6 py-3 bg-primary text-primary-foreground rounded-xl font-semibold text-sm hover:bg-primary/90 active:scale-95 transition-all shadow-lg shadow-primary/20 shrink-0"
-    >
-    <Plus size={ 16 } />
-                            Create Spotify Playlist
-    </button>
-    </div>
+{/* Settings + Create */}
+          <div className="mt-6 flex flex-col gap-3">
+            {/* Settings gear */}
+            <div className="relative" ref={settingsRef}>
+              <button
+                onClick={() => setSettingsOpen((o) => !o)}
+                className={`flex items-center gap-2 px-3 py-2 rounded-lg text-sm border transition-all font-medium ${
+                  settingsOpen
+                    ? "bg-secondary border-border text-foreground"
+                    : "border-border text-muted-foreground hover:text-foreground"
+                }`}
+              >
+                <Settings size={14} className={`transition-transform duration-300 ${settingsOpen ? "rotate-45" : ""}`} />
+                Settings
+                {/* active option summary badges */}
+                <span className="flex items-center gap-1 ml-1">
+                  {(() => {
+                    const visOpt = VISIBILITY_OPTIONS.find((o) => o.value === visibility)!;
+                    const VisIcon = visOpt.Icon;
+                    return <span className="flex items-center gap-1 px-1.5 py-0.5 rounded bg-muted text-xs font-mono text-muted-foreground"><VisIcon size={9} />{visOpt.label}</span>;
+                  })()}
+                  {songs.some((s) => s.cover) && (
+                    <span className="px-1.5 py-0.5 rounded bg-muted text-xs font-mono text-muted-foreground">
+                      {COVER_OPTIONS.find((o) => o.value === covers)?.label}
+                    </span>
+                  )}
+                </span>
+              </button>
+
+              {settingsOpen && (
+                <div className="absolute top-full left-0 mt-2 w-80 bg-card border border-border rounded-xl shadow-xl z-20 divide-y divide-border overflow-hidden">
+                  {/* Visibility */}
+                  <div className="p-4">
+                    <OptionToggle
+                      label="Playlist visibility"
+                      options={VISIBILITY_OPTIONS.map(({ value, label, desc }) => ({ value, label, desc }))}
+                      value={visibility}
+                      onChange={setVisibility}
+                    />
+                  </div>
+
+                  {/* Cover versions */}
+                  {songs.some((s) => s.cover) && (
+                    <div className="p-4">
+                      <OptionToggle
+                        label="Cover versions"
+                        options={COVER_OPTIONS}
+                        value={covers}
+                        onChange={setCovers}
+                      />
+                    </div>
+                  )}
+
+                </div>
+              )}
+            </div>
+
+            {/* Full-width create button */}
+            <button
+              onClick={() => onCreatePlaylist({ visibility, covers })}
+              className="w-full flex items-center justify-center gap-2 px-6 py-3.5 bg-primary text-primary-foreground rounded-xl font-semibold text-sm hover:bg-primary/90 active:scale-[0.99] transition-all shadow-lg shadow-primary/20"
+            >
+              <Plus size={16} />
+              Create Spotify Playlist · {includedCount} tracks
+            </button>
+          </div>
     </div>
 
 {/* Track list */ }
