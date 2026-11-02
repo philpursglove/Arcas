@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import React, { useState, useEffect } from "react";
 import {
     Search, Music, ListMusic, ChevronRight, Check, Loader2, ExternalLink, Play, Plus,
     ArrowLeft, Disc3, Link, Globe, Lock, Users, X
@@ -72,6 +72,10 @@ function Pill({ children }: { children: React.ReactNode }) {
         { children }
         </span>
     );
+}
+
+function RecentArtist({ name, onClick }: { name: string; onClick: (name: string) => void }) {
+    return (<span onClick={() => onClick(name)} className="cursor-pointer hover:text-foreground transition-colors">{name}</span>);
 }
 
 function SetlistCard({
@@ -169,12 +173,14 @@ function HeroSearch({
     onSearch,
     onPasteUrl,
     loading,
+    recentArtists,
 }: {
     query: string;
     setQuery: (v: string) => void;
     onSearch: () => void;
     onPasteUrl: (url: string) => void;
     loading: boolean;
+    recentArtists: string[];
 }) {
     const [tab, setTab] = useState<"search" | "url">("search");
     const [urlInput, setUrlInput] = useState("");
@@ -272,25 +278,30 @@ className = "absolute right-2 flex items-center gap-2 px-5 py-2.5 bg-primary tex
 Search
     </button>
     </div>
-    < p className = "text-xs text-muted-foreground font-mono mt-3" >
-        Try: Radiohead, Arctic Monkeys, Beyoncé, Taylor Swift
+    <p className = "text-xs text-muted-foreground font-mono mt-3" >
+{
+    recentArtists?.length > 0 ? (
+        <>Try: {recentArtists.map((artist, idx) => (
+            <React.Fragment key={idx}>
+                <RecentArtist name={artist} onClick={setQuery} />
+                {idx < recentArtists.length - 1 ? ', ' : ''}
+            </React.Fragment>
+        ))}</>
+    ) : (
+        <>Try: Radiohead, Arctic Monkeys, Beyoncé, Taylor Swift</>
+    )
+}
             </p>
             </>
                     ) : (
     <>
     <div className= "relative flex items-center" >
     <Link size={ 18 } className = "absolute left-4 text-muted-foreground pointer-events-none" />
-        <input
-                                    type="url"
-placeholder = "https://www.setlist.fm/setlist/…"
-value = { urlInput }
-onChange = {(e) => { setUrlInput(e.target.value); setUrlError(""); }}
-onKeyDown = {(e) => e.key === "Enter" && handleUrlSubmit()}
-className = {`w-full pl-12 pr-36 py-4 bg-card border rounded-xl text-foreground placeholder-muted-foreground focus:outline-none focus:ring-1 transition-all font-mono text-sm ${urlError
-    ? "border-destructive focus:border-destructive focus:ring-destructive/30"
-    : "border-border focus:border-primary focus:ring-primary/30"
-    }`}
-                                />
+        <input type="url" placeholder = "https://www.setlist.fm/setlist/…" value = {urlInput}
+            onChange = {(e) => { setUrlInput(e.target.value); setUrlError(""); }}
+            onKeyDown = {(e) => e.key === "Enter" && handleUrlSubmit()}
+className = {`w-full pl-12 pr-36 py-4 bg-card border rounded-xl text-foreground placeholder-muted-foreground focus:outline-none focus:ring-1 transition-all font-mono text-sm 
+            ${urlError ? "border-destructive focus:border-destructive focus:ring-destructive/30" : "border-border focus:border-primary focus:ring-primary/30"}`} />
     < button
 onClick = { handleUrlSubmit }
 disabled = { loading || !urlInput.trim()}
@@ -392,9 +403,6 @@ className = "flex items-center gap-2 text-sm text-muted-foreground hover:text-fo
                         )}
 { loadingMore ? "Loading…" : "Load more" }
 </button>
-    < p className = "text-xs font-mono text-muted-foreground" >
-        Demo mode — showing cached results.Connect API keys for live data.
-                    </p>
             </div>
             </main>
             </div>
@@ -791,6 +799,7 @@ export default function App() {
     const [playlist, setPlaylist] = useState<Playlist | null>(null);
     const [spotifyAccessToken, setSpotifyAccessToken] = useState<string | null>(null);
     const [spotifyClientId, setSpotifyClientId] = useState<string>("");
+    const [recentArtists, setRecentArtists] = useState<string[] | null>(null);
 
     // Handle OAuth callback and load initial data
     useEffect(() => {
@@ -830,6 +839,12 @@ export default function App() {
 
         // Load Spotify client ID
         SpotifyHelper.getSpotifyClientId().then(setSpotifyClientId);
+
+        // Load recent artists
+        fetch('Setlist/getrecentartists')
+            .then(response => response.json())
+            .then(data => setRecentArtists(data))
+            .catch(() => setRecentArtists([]));
 
         // Initialize history state
         if (!window.history.state) {
@@ -1034,6 +1049,7 @@ export default function App() {
     onSearch = { handleSearch }
     onPasteUrl = { handlePasteUrl }
     loading = { loading }
+    recentArtists = { recentArtists }
         />
             )
 }
@@ -1043,7 +1059,8 @@ export default function App() {
                     query={ query }
     setlists = { results }
     onSelect = { handleSelect }
-    onBack = {() => window.history.back()}
+    onBack = {() => { setQuery(""); window.history.back(); }
+}
     loadNextPage = { loadNextPage }
     loadingMore = { loadingMore }
         />

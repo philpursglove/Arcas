@@ -12,12 +12,15 @@ namespace Arcas.Server.Services
         private readonly ApiKeys _apiKeys;
         private readonly HttpClient _httpClient;
         private readonly IMemoryCache _memoryCache;
+        private readonly TableStorageClient<RecentSetlist> _recentSetlistClient;
 
-        public SetlistService(IOptions<ApiKeys> options, HttpClient httpClient, IMemoryCache memoryCache)
+        public SetlistService(IOptions<ApiKeys> options, HttpClient httpClient, IMemoryCache memoryCache,
+            TableStorageClient<RecentSetlist> recentSetlistClient)
         {
             _apiKeys = options.Value;
             _httpClient = httpClient;
             _memoryCache = memoryCache;
+            _recentSetlistClient = recentSetlistClient;
 
             _httpClient.BaseAddress = new Uri("https://api.setlist.fm/rest/1.0/");
             _httpClient.DefaultRequestHeaders.Add("x-api-key", _apiKeys.SetlistFmApiKey);
@@ -83,6 +86,18 @@ namespace Arcas.Server.Services
             {
                 _memoryCache.Set(cacheKey, setlist, TimeSpan.FromDays(7));
             }
+
+            var recentSetlist = new RecentSetlist()
+            {
+                Id = setlist.Id,
+                Artist = setlist.Artist.Name,
+                Name = setlist.Tour ?? "Unknown Tour",
+                SetlistId = setlist.Id,
+                EventDate = setlist.eventDate,
+                PartitionKey = "RecentSetlists",
+                RowKey = setlist.Id
+            };
+            await _recentSetlistClient.Save(recentSetlist);
 
             return setlist;
         }
@@ -166,7 +181,7 @@ namespace Arcas.Server.Services
 
             if (cachedResult != null)
             {
-                return new List<string>();
+                return cachedResult;
             }
 
             var setlistUrl = "user/PhilPursglove/attended";
@@ -181,6 +196,12 @@ namespace Arcas.Server.Services
             var recentArtists = attendedSetlists.Setlists.Select(s => s.Artist.Name).Distinct().Take(4).ToList();
             _memoryCache.Set(cacheKey, recentArtists, TimeSpan.FromDays(7));
             return recentArtists;
+        }
+
+        public async Task<List<RecentSetlist>> GetRecentSetlists()
+        {
+            var setlists = await _recentSetlistClient.Query(s => s.PartitionKey == "RecentSetlists", 10);
+            return setlists.OrderByDescending(s => s.ViewedAt).ToList();
         }
     }
 }

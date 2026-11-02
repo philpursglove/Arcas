@@ -11,12 +11,15 @@ namespace Arcas.Server.Services
         private readonly HttpClient _httpClient;
         private readonly IMemoryCache _cache;
         private const string SpotifyBearerTokenCacheKey = "SpotifyBearerToken";
+        private readonly TableStorageClient<RecentPlaylist> _recentPlaylistClient;
 
-        public SpotifyService(IOptions<ApiKeys> options, HttpClient httpClient, IMemoryCache memoryCache)
+        public SpotifyService(IOptions<ApiKeys> options, HttpClient httpClient, IMemoryCache memoryCache,
+            TableStorageClient<RecentPlaylist> recentPlaylistClient)
         {
             _apiKeys = options.Value;
             _httpClient = httpClient;
             _cache = memoryCache;
+            _recentPlaylistClient = recentPlaylistClient;
 
             _httpClient.BaseAddress = new Uri("https://api.spotify.com/v1/");
             _httpClient.Timeout = TimeSpan.FromSeconds(30);
@@ -156,6 +159,20 @@ namespace Arcas.Server.Services
                 }
             }
 
+            if (isPublic)
+            {
+                var recentPlaylist = new RecentPlaylist
+                {
+                    Id = playlistId,
+                    Name = name,
+                    Url = playlistUrl,
+                    CreatedAt = DateTime.UtcNow,
+                    PartitionKey = "RecentPlaylists",
+                    RowKey = playlistId
+                };
+                await _recentPlaylistClient.Save(recentPlaylist);
+            }
+
             return new
             {
                 id = playlistId,
@@ -163,6 +180,18 @@ namespace Arcas.Server.Services
                 name = name,
                 trackCount = validTrackUris.Count
             };
+        }
+
+        public async Task<List<RecentPlaylist>> GetRecentPlaylists()
+        {
+            var recentPlaylists = await _recentPlaylistClient.Query(p => p.PartitionKey == "RecentPlaylists", 10);
+            return recentPlaylists.OrderByDescending(p => p.CreatedAt).Select(p => new RecentPlaylist
+            {
+                Id = p.Id,
+                Name = p.Name,
+                Url = p.Url,
+                CreatedAt = p.CreatedAt,
+            }).ToList();
         }
     }
 }
